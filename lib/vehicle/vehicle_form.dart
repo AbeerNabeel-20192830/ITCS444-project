@@ -199,7 +199,7 @@ class _VehicleFormState extends State<VehicleForm> {
           TextFormField(
             controller: driverBirth,
             decoration: InputDecoration(
-                labelText: 'Driver\'s Birthdate (for age)',
+                labelText: 'Driver\'s Birthdate',
                 icon: const Icon(Icons.cake),
                 suffix: Text('$driverAge years')),
             readOnly: true,
@@ -238,7 +238,7 @@ class _VehicleFormState extends State<VehicleForm> {
           TextFormField(
             controller: carPrice,
             decoration: const InputDecoration(
-                labelText: 'Car Price (when new)',
+                labelText: 'Car Price When New',
                 icon: Icon(Icons.attach_money),
                 suffixText: 'BHD'),
             validator: (value) {

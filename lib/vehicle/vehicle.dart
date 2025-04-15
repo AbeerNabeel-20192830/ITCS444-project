@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter_project/utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ulid/ulid.dart';
 
 class Vehicle {
-  Ulid id;
+  String id;
   String customerName;
   String carModel;
   String chassisNumber;
@@ -13,6 +14,8 @@ class Vehicle {
   int passengersNum;
   DateTime driverBirth;
   double carPrice;
+  bool insured = false;
+  bool renewal = false;
 
   static List<Vehicle> vehicleList = [];
 
@@ -26,7 +29,7 @@ class Vehicle {
       required this.passengersNum,
       required this.driverBirth,
       required this.carPrice})
-      : this.id = id ?? Ulid();
+      : this.id = id ?? Ulid().toCanonical();
 
   Future<void> addToLocal({id}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -45,12 +48,14 @@ class Vehicle {
     };
 
     String vehicleJSON = jsonEncode(vehicleMap);
-    prefs.setString(id.toCanonical(), vehicleJSON);
+    prefs.setString(id, vehicleJSON);
   }
 
   Future<void> removeFromLocal() async {
+    inspect(this.id);
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove(id.toCanonical());
+    prefs.remove(this.id);
+    inspect(prefs);
   }
 
   Future<void> updateInLocal() async {
@@ -69,6 +74,7 @@ class Vehicle {
       final vehicleMap = jsonDecode(prefsMap[key]);
 
       Vehicle vehicle = Vehicle(
+          id: key,
           customerName: vehicleMap['customerName'],
           carModel: vehicleMap['carModel'],
           chassisNumber: vehicleMap['chassisNumber'],
