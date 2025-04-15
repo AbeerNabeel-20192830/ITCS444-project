@@ -9,7 +9,7 @@
   <p align="center">
     Mobile application that enables customers to insure their vehicles, and administartors to manage the process.
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Live Preview »</strong></a>
+    <a href="/"><strong>Live Preview (Not Available) »</strong></a>
     <br />
     <br />
 
