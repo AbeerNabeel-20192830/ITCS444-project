@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/vehicle/vehicle.dart';
 
 class InsuredPage extends StatefulWidget {
   static const title = 'Insurance Details';
-  const InsuredPage({super.key});
+  Vehicle vehicle;
+  InsuredPage({super.key, required this.vehicle});
 
   @override
   State<InsuredPage> createState() => _InsuredPageState();

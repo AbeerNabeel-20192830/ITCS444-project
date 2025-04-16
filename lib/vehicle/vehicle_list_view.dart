@@ -101,13 +101,13 @@ class _VehicleListViewState extends State<VehicleListView> {
     String title = '';
 
     if (insured) {
-      page = InsuredPage();
+      page = InsuredPage(vehicle: vehicle);
       title = InsuredPage.title;
     } else if (!insured && renewal) {
-      page = RenewalPage();
+      page = RenewalPage(vehicle: vehicle);
       title = RenewalPage.title;
     } else {
-      page = NewInsurancePage();
+      page = NewInsurancePage(vehicle: vehicle);
       title = NewInsurancePage.title;
     }
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/vehicle/vehicle.dart';
 
 class RenewalPage extends StatefulWidget {
   static const title = 'Insurance Renewal';
-  const RenewalPage({super.key});
+  Vehicle vehicle;
+  RenewalPage({super.key, required this.vehicle});
 
   @override
   State<RenewalPage> createState() => _RenewalPageState();

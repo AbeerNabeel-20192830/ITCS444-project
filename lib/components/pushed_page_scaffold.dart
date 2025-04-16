@@ -29,7 +29,9 @@ class _PushedPageScaffoldState extends State<PushedPageScaffold> {
             width: maxWidth,
             child: SingleChildScrollView(
               padding: EdgeInsets.all(20),
-              child: widget.page,
+              child: SizedBox(
+                  width: maxWidth,
+                  child: SingleChildScrollView(child: widget.page)),
             ),
           ),
         ),

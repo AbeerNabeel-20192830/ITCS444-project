@@ -8,23 +8,30 @@ class Insurance {
   bool _payed = false;
   DateTime? _paymentDate;
   DateTime? _nextPaymentDate;
+  bool? accident;
 
   // all insurances, each unique to one vehicle
   static List<Insurance> insuranceList = [];
 
-  Insurance({
-    required this.vehicle,
-    this.selectedOffer,
-  }) : this.id = vehicle.id;
+  Insurance({required this.vehicle, this.selectedOffer, required this.accident})
+      : this.id = vehicle.id;
 
   double price() {
     if (selectedOffer != null) {
       return selectedOffer!.price;
     }
 
-    int years = DateTime.now().year - vehicle.manuYear.year;
+    int ageAddon =
+        vehicle.driverAge() < 24 ? 10 : 0; // 10 BD extra if younger than 24
+    int accidentAddon = accident! ? 20 : 0; // 20 BD extra if accident
 
-    return selectedOffer?.price ?? (vehicle.carPrice * years * 0.1) / 1000;
+    return (vehicle.carPriceNow() / 100) + ageAddon + accidentAddon;
+  }
+
+  static double estimatePrice(Vehicle vehicle, bool accident) {
+    int ageAddon = vehicle.driverAge() < 24 ? 10 : 0;
+    int accidentAddon = accident ? 20 : 0;
+    return (vehicle.carPriceNow() / 100) + ageAddon + accidentAddon;
   }
 
   bool get payed => _payed;
