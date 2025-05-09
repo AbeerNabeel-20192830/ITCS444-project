@@ -1,4 +1,4 @@
-import 'package:flutter_project/vehicle/vehicle.dart';
+import 'package:flutter_project/models/vehicle.dart';
 
 // one insurance object is associated with one vehicle
 class Insurance {

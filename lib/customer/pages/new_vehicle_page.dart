@@ -20,7 +20,6 @@ class _NewVehiclePageState extends State<NewVehiclePage> {
         padding: const EdgeInsets.all(20),
         child: VehicleForm(
           formType: FormType.create,
-          notifyParent: refresh,
         ),
       ),
     );

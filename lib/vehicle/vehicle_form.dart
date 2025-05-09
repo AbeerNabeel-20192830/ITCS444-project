@@ -2,7 +2,7 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:age_calculator/age_calculator.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
-import 'package:flutter_project/vehicle/vehicle.dart';
+import 'package:flutter_project/models/vehicle.dart';
 import 'package:flutter_project/utils.dart';
 
 enum FormType { create, update }
@@ -10,13 +10,8 @@ enum FormType { create, update }
 class VehicleForm extends StatefulWidget {
   final FormType formType;
   final Vehicle? vehicle;
-  final Function() notifyParent;
 
-  const VehicleForm(
-      {super.key,
-      required this.formType,
-      this.vehicle,
-      required this.notifyParent});
+  const VehicleForm({super.key, required this.formType, this.vehicle});
 
   @override
   State<VehicleForm> createState() => _VehicleFormState();
@@ -31,24 +26,27 @@ class _VehicleFormState extends State<VehicleForm> {
   TextEditingController chassisNumber = TextEditingController();
   TextEditingController manuYear = TextEditingController();
   TextEditingController regNumber = TextEditingController();
-  TextEditingController passengersNum = TextEditingController();
+  TextEditingController passengers = TextEditingController();
   TextEditingController driverBirth = TextEditingController();
   TextEditingController carPrice = TextEditingController();
   int? driverAge;
 
   @override
   Widget build(BuildContext context) {
-    if (widget.vehicle != null && widget.formType == FormType.update) {
-      customerName.text = widget.vehicle!.customerName;
-      carModel.text = widget.vehicle!.carModel;
-      chassisNumber.text = widget.vehicle!.chassisNumber;
-      manuYear.text = widget.vehicle!.manuYear.year.toString();
-      regNumber.text = widget.vehicle!.regNumber;
-      passengersNum.text = widget.vehicle!.passengersNum.toString();
-      driverBirth.text = dateToString(widget.vehicle!.driverBirth);
-      carPrice.text = widget.vehicle!.carPrice.toString();
+    Vehicle? vehicle = widget.vehicle;
 
-      driverAge = AgeCalculator.age(DateTime.parse(driverBirth.text)).years;
+    if (widget.vehicle != null && widget.formType == FormType.update) {
+      vehicle = widget.vehicle!;
+      customerName.text = vehicle.customerName;
+      carModel.text = vehicle.carModel;
+      chassisNumber.text = vehicle.chassisNumber;
+      manuYear.text = vehicle.manuYear.toString();
+      regNumber.text = vehicle.regNumber;
+      passengers.text = vehicle.passengers.toString();
+      driverBirth.text = dateToString(vehicle.driverBirth);
+      carPrice.text = vehicle.carPrice.toString();
+
+      driverAge = vehicle.driverAge();
     }
 
     return Form(
@@ -173,7 +171,7 @@ class _VehicleFormState extends State<VehicleForm> {
 
           // Number of Passengers
           TextFormField(
-            controller: passengersNum,
+            controller: passengers,
             decoration: const InputDecoration(
               labelText: 'Number of Passengers',
               icon: Icon(Icons.airline_seat_recline_extra),
@@ -201,7 +199,7 @@ class _VehicleFormState extends State<VehicleForm> {
             decoration: InputDecoration(
                 labelText: 'Driver\'s Birthdate',
                 icon: const Icon(Icons.cake),
-                suffix: Text('$driverAge years')),
+                suffix: Text('${driverAge ?? "0"} years')),
             readOnly: true,
             validator: (value) {
               if (value!.isEmpty) {
@@ -261,7 +259,7 @@ class _VehicleFormState extends State<VehicleForm> {
             runAlignment: WrapAlignment.center,
             children: [
               ElevatedButton(
-                  onPressed: submitVehicle,
+                  onPressed: () => submitVehicle(vehicle),
                   child: Text(widget.formType == FormType.create
                       ? 'Add Vehicle'
                       : 'Update Vehicle')),
@@ -275,7 +273,7 @@ class _VehicleFormState extends State<VehicleForm> {
     );
   }
 
-  void submitVehicle() {
+  void submitVehicle(Vehicle? vehicle) {
     if (vehicleForm.currentState!.validate()) {
       vehicleForm.currentState!.save();
 
@@ -284,29 +282,33 @@ class _VehicleFormState extends State<VehicleForm> {
           createVehicle();
           break;
         case FormType.update:
-          updateVehicle();
+          updateVehicle(vehicle!);
           break;
       }
 
       vehicleForm.currentState!.reset();
+      customerName.clear();
+      carModel.clear();
+      chassisNumber.clear();
+      manuYear.clear();
+      regNumber.clear();
+      passengers.clear();
+      driverBirth.clear();
+      carPrice.clear();
     }
   }
 
   void createVehicle() {
-    Vehicle vehicle = Vehicle(
-        customerName: customerName.text,
-        carModel: carModel.text,
-        chassisNumber: chassisNumber.text,
-        manuYear: DateTime(int.parse(manuYear.text)),
-        regNumber: regNumber.text,
-        passengersNum: int.parse(passengersNum.text),
-        driverBirth: DateTime.parse(driverBirth.text),
-        carPrice: double.parse(carPrice.text));
-
-    setState(() {
-      Vehicle.vehicleList.add(vehicle);
-    });
-    vehicle.addToLocal();
+    Vehicle(
+            customerName: customerName.text,
+            carModel: carModel.text,
+            chassisNumber: chassisNumber.text,
+            manuYear: int.parse(manuYear.text),
+            regNumber: regNumber.text,
+            passengers: int.parse(passengers.text),
+            driverBirth: DateTime.parse(driverBirth.text),
+            carPrice: double.parse(carPrice.text))
+        .addVehicle();
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -316,17 +318,17 @@ class _VehicleFormState extends State<VehicleForm> {
           ContentType.success));
   }
 
-  void updateVehicle() {
-    widget.vehicle!.customerName = customerName.text;
-    widget.vehicle!.carModel = carModel.text;
-    widget.vehicle!.chassisNumber = chassisNumber.text;
-    widget.vehicle!.manuYear = DateTime(int.parse(manuYear.text));
-    widget.vehicle!.regNumber = regNumber.text;
-    widget.vehicle!.passengersNum = int.parse(passengersNum.text);
-    widget.vehicle!.driverBirth = DateTime.parse(driverBirth.text);
-    widget.vehicle!.carPrice = double.parse(carPrice.text);
+  void updateVehicle(Vehicle vehicle) {
+    vehicle.customerName = customerName.text;
+    vehicle.carModel = carModel.text;
+    vehicle.chassisNumber = chassisNumber.text;
+    vehicle.manuYear = int.parse(manuYear.text);
+    vehicle.regNumber = regNumber.text;
+    vehicle.passengers = int.parse(passengers.text);
+    vehicle.driverBirth = DateTime.parse(driverBirth.text);
+    vehicle.carPrice = double.parse(carPrice.text);
 
-    widget.vehicle!.updateInLocal();
+    vehicle.updateVehicle();
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -335,8 +337,6 @@ class _VehicleFormState extends State<VehicleForm> {
           'Vehicle ${chassisNumber.text} updated successfully',
           ContentType.success));
 
-    setState(() {});
-    widget.notifyParent();
     Navigator.pop(context);
   }
 }

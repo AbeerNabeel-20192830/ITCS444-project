@@ -7,13 +7,11 @@ import 'package:flutter_project/customer/pages/insured_page.dart';
 import 'package:flutter_project/customer/pages/new_insurance_page.dart';
 import 'package:flutter_project/customer/pages/renewal_page.dart';
 import 'package:flutter_project/utils.dart';
-import 'package:flutter_project/vehicle/vehicle.dart';
+import 'package:flutter_project/models/vehicle.dart';
 import 'package:flutter_project/vehicle/vehicle_form.dart';
 
 class VehicleListView extends StatefulWidget {
-  final Function() notifyParent;
-
-  const VehicleListView({super.key, required this.notifyParent});
+  const VehicleListView({super.key});
 
   @override
   State<VehicleListView> createState() => _VehicleListViewState();
@@ -61,7 +59,7 @@ class _VehicleListViewState extends State<VehicleListView> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${vehicle.carModel} (${vehicle.manuYear.year})'),
+                    Text('${vehicle.carModel} (${vehicle.manuYear})'),
                     Text(
                         'Driver: ${vehicle.customerName} (${AgeCalculator.age(vehicle.driverBirth).years} years)'),
                     SizedBox(height: 8),
@@ -154,7 +152,6 @@ class _VehicleListViewState extends State<VehicleListView> {
                             VehicleForm(
                               formType: FormType.update,
                               vehicle: vehicle,
-                              notifyParent: widget.notifyParent,
                             ),
                           ],
                         ),
@@ -192,13 +189,9 @@ class _VehicleListViewState extends State<VehicleListView> {
                               'Vehicle deleted successfully',
                               ContentType.success));
 
-                        setState(() {
-                          Vehicle.vehicleList.remove(vehicle);
-                        });
-                        vehicle.removeFromLocal();
+                        vehicle.removeVehicle();
 
                         Navigator.pop(context);
-                        widget.notifyParent();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.error,

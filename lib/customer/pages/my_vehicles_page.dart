@@ -9,14 +9,8 @@ class MyVehiclesPage extends StatefulWidget {
 }
 
 class _MyVehiclesPageState extends State<MyVehiclesPage> {
-  refresh() {
-    setState(() {});
-  }
-
   @override
   Widget build(BuildContext context) {
-    return VehicleListView(
-      notifyParent: refresh,
-    );
+    return VehicleListView();
   }
 }

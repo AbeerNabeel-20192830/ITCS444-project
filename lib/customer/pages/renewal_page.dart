@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/vehicle/vehicle.dart';
+import 'package:flutter_project/models/vehicle.dart';
 
 class RenewalPage extends StatefulWidget {
   static const title = 'Insurance Renewal';

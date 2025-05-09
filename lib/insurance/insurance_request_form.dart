@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/insurance/insurance.dart';
-import 'package:flutter_project/vehicle/vehicle.dart';
+import 'package:flutter_project/models/insurance.dart';
+import 'package:flutter_project/models/vehicle.dart';
 
 class InsuranceRequestForm extends StatefulWidget {
   Vehicle vehicle;
@@ -105,7 +105,7 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
               ),
               ListTile(
                 leading: Text('Manufacturing Year'),
-                trailing: Text('${vehicle.manuYear.year}'),
+                trailing: Text('${vehicle.manuYear}'),
               ),
               ListTile(
                 leading: Text('Car Price When New'),
