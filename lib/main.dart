@@ -1,13 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_project/customer/pages/my_vehicles_page.dart';
-import 'package:flutter_project/customer/pages/new_vehicle_page.dart';
 import 'package:flutter_project/firebase_options.dart';
+import 'package:flutter_project/logged_view.dart';
 import 'package:flutter_project/models/insurance_provider.dart';
 import 'package:flutter_project/models/vehicle_provider.dart';
-import 'package:flutter_project/theme/theme.dart';
-import 'package:flutter_project/utils.dart';
-
+import 'package:flutter_project/non_logged_view.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_project/theme/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +17,7 @@ void main() async {
   bool isDarkMode =
       prefs.getBool('isDarkMode') ?? ThemeMode.system == ThemeMode.dark;
 
-  Firebase.initializeApp(options: myFirebaseOptions);
+  await Firebase.initializeApp(options: myFirebaseOptions);
 
   runApp(MultiProvider(
     providers: [
@@ -45,63 +43,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Login extends StatefulWidget {
-  const Login({super.key});
-
-  @override
-  State<Login> createState() => _MyLoginState();
-}
-
-class _MyLoginState extends State<Login> {
-  TextEditingController usernameTextEditingController = TextEditingController();
-  TextEditingController passwordTextEditingController = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const Text(
-          'Login',
-          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-        ),
-        Container(
-          height: 10,
-        ),
-        TextField(
-          controller: usernameTextEditingController,
-          keyboardType: TextInputType.name,
-          decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Username:',
-              icon: Icon(Icons.person)),
-        ),
-        Container(
-          height: 20,
-        ),
-        TextField(
-          controller: passwordTextEditingController,
-          obscureText: true,
-          keyboardType: TextInputType.text,
-          decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Password:',
-              icon: Icon(Icons.password)),
-        ),
-        Container(
-          height: 20,
-        ),
-        MaterialButton(
-          onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => HomePage()));
-          },
-          child: const Text('login'),
-        )
-      ],
-    );
-  }
-}
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
@@ -109,73 +50,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var title = '';
-  var selectedIndex = 0;
-
   @override
   Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-        title = 'New Vehicle';
-        page = const NewVehiclePage();
-        break;
-      case 1:
-        title = 'My Vehicles';
-        page = const MyVehiclesPage();
-        break;
-      default:
-        page = const Placeholder();
-    }
-
     return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Padding(
-            padding: const EdgeInsets.only(top: 20, left: 20),
-            child: Text(title, style: Theme.of(context).textTheme.titleLarge),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.only(top: 20, right: 20),
-              child: IconButton(
-                onPressed: () {
-                  Provider.of<ThemeProvider>(
-                    context,
-                    listen: false,
-                  ).toggleTheme();
-                },
-                icon: Provider.of<ThemeProvider>(context).themeData == lightMode
-                    ? Icon(Icons.light_mode)
-                    : Icon(Icons.dark_mode),
-              ),
-            ),
-          ],
-        ),
-        body: Align(
-          alignment: Alignment.center,
-          child: SizedBox(
-            width: maxWidth,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(20),
-              child: page,
-            ),
-          ),
-        ),
-        bottomNavigationBar: NavigationBar(
-          destinations: const [
-            NavigationDestination(
-                icon: Icon(Icons.add_circle), label: 'New Vehicle'),
-            NavigationDestination(
-                icon: Icon(Icons.directions_car), label: 'My Vehicles'),
-          ],
-          selectedIndex: selectedIndex,
-          onDestinationSelected: (value) {
-            setState(() {
-              selectedIndex = value;
-            });
-          },
-        ),
+      child: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasData) {
+            // User is logged in
+            return LoggedInView();
+          } else {
+            // User is not logged in
+            return NonLoggedInView();
+          }
+        },
       ),
     );
   }
