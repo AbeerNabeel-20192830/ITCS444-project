@@ -1,4 +1,3 @@
-import 'package:age_calculator/age_calculator.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
@@ -6,9 +5,11 @@ import 'package:flutter_project/components/pushed_page_scaffold.dart';
 import 'package:flutter_project/customer/pages/insured_page.dart';
 import 'package:flutter_project/customer/pages/new_insurance_page.dart';
 import 'package:flutter_project/customer/pages/renewal_page.dart';
+import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/utils.dart';
 import 'package:flutter_project/models/vehicle.dart';
 import 'package:flutter_project/vehicle/vehicle_form.dart';
+import 'package:provider/provider.dart';
 
 class VehicleListView extends StatefulWidget {
   const VehicleListView({super.key});
@@ -20,7 +21,17 @@ class VehicleListView extends StatefulWidget {
 class _VehicleListViewState extends State<VehicleListView> {
   @override
   Widget build(BuildContext context) {
-    List<Vehicle> vehicleList = Vehicle.vehicleList;
+    List<Vehicle> vehicleList = context.watch<VehicleProvider>().vehicleList;
+
+    if (vehicleList.isEmpty) {
+      return Center(
+        child: Text(
+          'No vehicles found',
+          style: Theme.of(context).textTheme.titleSmall,
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
 
     return ListView.builder(
         physics: ScrollPhysics(),
@@ -61,7 +72,7 @@ class _VehicleListViewState extends State<VehicleListView> {
                   children: [
                     Text('${vehicle.carModel} (${vehicle.manuYear})'),
                     Text(
-                        'Driver: ${vehicle.customerName} (${AgeCalculator.age(vehicle.driverBirth).years} years)'),
+                        'Driver: ${vehicle.customerName} (${vehicle.driverAge()} years)'),
                     SizedBox(height: 8),
                     ElevatedButton(
                       onPressed: () => showInsuranceStatusPage(vehicle),
@@ -112,7 +123,8 @@ class _VehicleListViewState extends State<VehicleListView> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => PushedPageScaffold(page: page, title: title)));
+            builder: (context) =>
+                PushedPageScaffold(page: page, title: title)));
   }
 
   Widget actionDropDown(Vehicle vehicle) {
@@ -189,7 +201,7 @@ class _VehicleListViewState extends State<VehicleListView> {
                               'Vehicle deleted successfully',
                               ContentType.success));
 
-                        vehicle.removeVehicle();
+                        context.read<VehicleProvider>().removeVehicle(vehicle);
 
                         Navigator.pop(context);
                       },

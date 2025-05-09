@@ -1,10 +1,7 @@
-import 'dart:developer';
 import 'package:age_calculator/age_calculator.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:ulid/ulid.dart';
 
-class Vehicle extends ChangeNotifier {
+class Vehicle {
   String id;
   String customerName;
   String carModel;
@@ -16,9 +13,6 @@ class Vehicle extends ChangeNotifier {
   double carPrice;
   bool insured = false;
   bool renewal = false;
-
-  // Static list to hold vehicle data
-  static List<Vehicle> vehicleList = [];
 
   // Constructor
   Vehicle(
@@ -42,74 +36,5 @@ class Vehicle extends ChangeNotifier {
   double carPriceNow() {
     int years = DateTime.now().year - this.manuYear;
     return (this.carPrice * years * 0.1);
-  }
-
-  // Get data from Firebase and set to vehicleList
-  static Future<void> getData() async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('vehicles');
-    QuerySnapshot querySnapshot = await collectionRef.get();
-
-    // Get data from docs and convert map to List
-    vehicleList = querySnapshot.docs
-        .map((doc) => Vehicle(
-            id: doc['id'],
-            customerName: doc['customerName'],
-            carModel: doc['carModel'],
-            chassisNumber: doc['chassisNumber'],
-            manuYear: doc['manuYear'],
-            regNumber: doc['regNumber'],
-            passengers: doc['passengers'],
-            driverBirth: doc['driverBirth'].toDate(),
-            carPrice: doc['carPrice']))
-        .toList();
-
-    inspect(vehicleList);
-  }
-
-  // CRUD operations
-  Future<void> addVehicle() async {
-    vehicleList.add(this);
-    await _setFirebase(this);
-    notifyListeners();
-  }
-
-  Future<void> removeVehicle() async {
-    vehicleList.removeWhere((v) => v.id == this.id);
-    await _removeFirebase(this);
-    notifyListeners();
-  }
-
-  Future<void> updateVehicle() async {
-    int index = vehicleList.indexWhere((v) => v.id == this.id);
-    if (index != -1) {
-      vehicleList[index] = this;
-      await _setFirebase(this);
-      notifyListeners();
-    }
-  }
-
-  Future<void> _setFirebase(Vehicle vehicle) async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('vehicles');
-
-    await collectionRef.doc(vehicle.id).set({
-      'id': vehicle.id,
-      'customerName': vehicle.customerName,
-      'carModel': vehicle.carModel,
-      'chassisNumber': vehicle.chassisNumber,
-      'manuYear': vehicle.manuYear,
-      'regNumber': vehicle.regNumber,
-      'passengers': vehicle.passengers,
-      'driverBirth': vehicle.driverBirth,
-      'carPrice': vehicle.carPrice
-    });
-  }
-
-  Future<void> _removeFirebase(Vehicle vehicle) async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('vehicles');
-
-    await collectionRef.doc(vehicle.id).delete();
   }
 }

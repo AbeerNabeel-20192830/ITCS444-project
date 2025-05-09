@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:age_calculator/age_calculator.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/vehicle.dart';
+import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/utils.dart';
+import 'package:provider/provider.dart';
 
 enum FormType { create, update }
 
@@ -45,7 +47,17 @@ class _VehicleFormState extends State<VehicleForm> {
       passengers.text = vehicle.passengers.toString();
       driverBirth.text = dateToString(vehicle.driverBirth);
       carPrice.text = vehicle.carPrice.toString();
+      vehicle = widget.vehicle!;
+      customerName.text = vehicle.customerName;
+      carModel.text = vehicle.carModel;
+      chassisNumber.text = vehicle.chassisNumber;
+      manuYear.text = vehicle.manuYear.toString();
+      regNumber.text = vehicle.regNumber;
+      passengers.text = vehicle.passengers.toString();
+      driverBirth.text = dateToString(vehicle.driverBirth);
+      carPrice.text = vehicle.carPrice.toString();
 
+      driverAge = vehicle.driverAge();
       driverAge = vehicle.driverAge();
     }
 
@@ -295,20 +307,29 @@ class _VehicleFormState extends State<VehicleForm> {
       passengers.clear();
       driverBirth.clear();
       carPrice.clear();
+      customerName.clear();
+      carModel.clear();
+      chassisNumber.clear();
+      manuYear.clear();
+      regNumber.clear();
+      passengers.clear();
+      driverBirth.clear();
+      carPrice.clear();
     }
   }
 
   void createVehicle() {
-    Vehicle(
-            customerName: customerName.text,
-            carModel: carModel.text,
-            chassisNumber: chassisNumber.text,
-            manuYear: int.parse(manuYear.text),
-            regNumber: regNumber.text,
-            passengers: int.parse(passengers.text),
-            driverBirth: DateTime.parse(driverBirth.text),
-            carPrice: double.parse(carPrice.text))
-        .addVehicle();
+    Vehicle vehicle = Vehicle(
+        customerName: customerName.text,
+        carModel: carModel.text,
+        chassisNumber: chassisNumber.text,
+        manuYear: int.parse(manuYear.text),
+        regNumber: regNumber.text,
+        passengers: int.parse(passengers.text),
+        driverBirth: DateTime.parse(driverBirth.text),
+        carPrice: double.parse(carPrice.text));
+
+    context.read<VehicleProvider>().addVehicle(vehicle);
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -328,7 +349,7 @@ class _VehicleFormState extends State<VehicleForm> {
     vehicle.driverBirth = DateTime.parse(driverBirth.text);
     vehicle.carPrice = double.parse(carPrice.text);
 
-    vehicle.updateVehicle();
+    context.read<VehicleProvider>().updateVehicle(vehicle);
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()

@@ -162,3 +162,4 @@ app.*.symbols
 
 node_modules
 android
+firebase_options.dart

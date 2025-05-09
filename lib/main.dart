@@ -2,9 +2,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/customer/pages/my_vehicles_page.dart';
 import 'package:flutter_project/customer/pages/new_vehicle_page.dart';
+import 'package:flutter_project/firebase_options.dart';
+import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/theme/theme.dart';
 import 'package:flutter_project/utils.dart';
-import 'package:flutter_project/models/vehicle.dart';
 
 import 'package:provider/provider.dart';
 import 'package:flutter_project/theme/theme_provider.dart';
@@ -17,19 +18,13 @@ void main() async {
   bool isDarkMode =
       prefs.getBool('isDarkMode') ?? ThemeMode.system == ThemeMode.dark;
 
-  Firebase.initializeApp(
-      options: FirebaseOptions(
-          apiKey: "AIzaSyAUZZfXR0DoQOu-lBcX3Dqs-c6oLTsK3RA",
-          authDomain: "itcs444-project-0.firebaseapp.com",
-          projectId: "itcs444-project-0",
-          storageBucket: "itcs444-project-0.firebasestorage.app",
-          messagingSenderId: "827582455562",
-          appId: "1:827582455562:web:6d212b3a0c4ba6b87424f3",
-          measurementId: "G-P3L1C39CLB"));
-  await Vehicle.getData();
+  Firebase.initializeApp(options: myFirebaseOptions);
 
-  runApp(ChangeNotifierProvider(
-    create: (context) => ThemeProvider(isDarkMode),
+  runApp(MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (context) => ThemeProvider(isDarkMode)),
+      ChangeNotifierProvider(create: (context) => VehicleProvider()),
+    ],
     child: const MyApp(),
   ));
 }
@@ -42,7 +37,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Car Insurance App',
-      theme: Provider.of<ThemeProvider>(context).themeData,
+      theme: context.watch<ThemeProvider>().themeData,
       home: HomePage(),
     );
   }
@@ -156,7 +151,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         body: Align(
-          alignment: Alignment.topCenter,
+          alignment: Alignment.center,
           child: SizedBox(
             width: maxWidth,
             child: SingleChildScrollView(
