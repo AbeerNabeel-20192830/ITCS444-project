@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/vehicle.dart';
@@ -17,20 +15,20 @@ class VehicleProvider extends ChangeNotifier {
     QuerySnapshot querySnapshot = await collectionRef.get();
 
     // Get data from docs and convert map to List
-    vehicleList = querySnapshot.docs
-        .map((doc) => Vehicle(
-            id: doc['id'],
-            customerName: doc['customerName'],
-            carModel: doc['carModel'],
-            chassisNumber: doc['chassisNumber'],
-            manuYear: doc['manuYear'],
-            regNumber: doc['regNumber'],
-            passengers: doc['passengers'],
-            driverBirth: doc['driverBirth'].toDate(),
-            carPrice: doc['carPrice']))
-        .toList();
+    vehicleList = querySnapshot.docs.map((doc) {
+      return Vehicle(
+          id: doc['id'],
+          customerName: doc['customerName'],
+          carModel: doc['carModel'],
+          chassisNumber: doc['chassisNumber'],
+          manuYear: doc['manuYear'],
+          regNumber: doc['regNumber'],
+          passengers: doc['passengers'],
+          driverBirth: doc['driverBirth'].toDate(),
+          carPrice: doc['carPrice']);
+    }).toList();
 
-    inspect(vehicleList);
+    notifyListeners();
   }
 
   Future<void> addVehicle(Vehicle vehicle) async {

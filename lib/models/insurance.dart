@@ -1,31 +1,64 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_project/models/vehicle.dart';
+
+enum Status {
+  notInsured('Not insured', Colors.red),
+  pendingApproval('Pending approval', Colors.amber),
+  notPayed('Not payed', Colors.deepOrangeAccent),
+  payed('Payed', Colors.green);
+
+  const Status(this.label, this.color);
+
+  final String label;
+  final Color color;
+
+  static Status getValueFromLabel(String label) {
+    switch (label) {
+      case 'Not insured':
+        return Status.notInsured;
+      case 'Pending approval':
+        return Status.pendingApproval;
+      case 'Not payed':
+        return Status.notPayed;
+      case 'Payed':
+        return Status.payed;
+    }
+
+    return Status.pendingApproval;
+  }
+}
 
 // one insurance object is associated with one vehicle
 class Insurance {
-  Vehicle vehicle;
-  String id; // same as vehicle id
+  String vehicleId;
+  bool accident;
+  DateTime? paymentDate;
   InsuranceOffer? selectedOffer;
-  bool _payed = false;
-  DateTime? _paymentDate;
-  DateTime? _nextPaymentDate;
-  bool? accident;
+  Vehicle? vehicle;
+  Status status;
 
-  // all insurances, each unique to one vehicle
-  static List<Insurance> insuranceList = [];
+  Insurance(
+      {required this.vehicleId,
+      this.selectedOffer,
+      this.accident = false,
+      this.paymentDate,
+      this.vehicle,
+      this.status = Status.pendingApproval});
 
-  Insurance({required this.vehicle, this.selectedOffer, required this.accident})
-      : this.id = vehicle.id;
-
-  double price() {
+  price() {
     if (selectedOffer != null) {
       return selectedOffer!.price;
     }
 
     int ageAddon =
-        vehicle.driverAge() < 24 ? 10 : 0; // 10 BD extra if younger than 24
-    int accidentAddon = accident! ? 20 : 0; // 20 BD extra if accident
+        vehicle!.driverAge() < 24 ? 10 : 0; // 10 BD extra if younger than 24
+    int accidentAddon = accident ? 20 : 0; // 20 BD extra if accident
 
-    return (vehicle.carPriceNow() / 100) + ageAddon + accidentAddon;
+    return (vehicle!.carPriceNow() / 100) + ageAddon + accidentAddon;
+  }
+
+  approve() {
+    status = Status.notPayed;
   }
 
   static double estimatePrice(Vehicle vehicle, bool accident) {
@@ -34,15 +67,17 @@ class Insurance {
     return (vehicle.carPriceNow() / 100) + ageAddon + accidentAddon;
   }
 
-  bool get payed => _payed;
-
-  DateTime? get nextPaymentDate => _nextPaymentDate;
-
   void pay() {
-    _payed = true;
-    _paymentDate = DateTime.now();
-    _nextPaymentDate = DateTime(_paymentDate!.year + 1, _paymentDate!.month,
-        _paymentDate!.day); // next year
+    status = Status.payed;
+    paymentDate = DateTime.now();
+  }
+
+  DateTime? nextPaymentDate() {
+    if (paymentDate != null) {
+      return DateTime(
+          paymentDate!.year + 1, paymentDate!.month, paymentDate!.day);
+    }
+    return null;
   }
 }
 

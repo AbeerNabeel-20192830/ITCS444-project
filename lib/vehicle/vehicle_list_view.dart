@@ -5,6 +5,8 @@ import 'package:flutter_project/components/pushed_page_scaffold.dart';
 import 'package:flutter_project/customer/pages/insured_page.dart';
 import 'package:flutter_project/customer/pages/new_insurance_page.dart';
 import 'package:flutter_project/customer/pages/renewal_page.dart';
+import 'package:flutter_project/models/insurance.dart';
+import 'package:flutter_project/models/insurance_provider.dart';
 import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/utils.dart';
 import 'package:flutter_project/models/vehicle.dart';
@@ -21,7 +23,24 @@ class VehicleListView extends StatefulWidget {
 class _VehicleListViewState extends State<VehicleListView> {
   @override
   Widget build(BuildContext context) {
+    List<Insurance> insuranceList =
+        context.watch<InsuranceProvider>().insuranceList;
     List<Vehicle> vehicleList = context.watch<VehicleProvider>().vehicleList;
+
+    for (var vehicle in vehicleList) {
+      int index =
+          insuranceList.indexWhere((ins) => ins.vehicleId == vehicle.id);
+      if (index != -1) {
+        vehicle.insurance =
+            context.watch<InsuranceProvider>().insuranceList[index];
+      }
+    }
+
+    if (vehicleList.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
     if (vehicleList.isEmpty) {
       return Center(
@@ -77,14 +96,12 @@ class _VehicleListViewState extends State<VehicleListView> {
                     ElevatedButton(
                       onPressed: () => showInsuranceStatusPage(vehicle),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: vehicle.insured
-                            ? Colors.green[600]
-                            : Theme.of(context).colorScheme.error,
-                        foregroundColor: vehicle.insured
-                            ? Colors.green[100]
-                            : Theme.of(context).colorScheme.onError,
+                          backgroundColor: vehicle.insuranceStatus.color,
+                          foregroundColor: Colors.black),
+                      child: Text(
+                        vehicle.insuranceStatus.label,
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      child: Text(vehicle.insured ? 'Insured' : 'Not insured'),
                     ),
                   ],
                 ),
@@ -98,26 +115,32 @@ class _VehicleListViewState extends State<VehicleListView> {
   }
 
   void showInsuranceStatusPage(Vehicle vehicle) {
-    bool insured = vehicle.insured;
-    bool renewal = vehicle.renewal;
+    Status insuranseStatus = vehicle.insuranceStatus;
 
-    // 3 actual cases:
-    // insured (renewal or not): VIEW DETAILS
-    // not insured and renewal: RENEWAL
-    // not insured and not renewal: NEW REQUEST
-
-    Widget page;
+    Widget? page;
     String title = '';
 
-    if (insured) {
-      page = InsuredPage(vehicle: vehicle);
-      title = InsuredPage.title;
-    } else if (!insured && renewal) {
-      page = RenewalPage(vehicle: vehicle);
-      title = RenewalPage.title;
-    } else {
-      page = NewInsurancePage(vehicle: vehicle);
-      title = NewInsurancePage.title;
+    switch (insuranseStatus) {
+      case Status.notInsured:
+        page = NewInsurancePage(vehicle: vehicle);
+        title = NewInsurancePage.title;
+        break; // Not insured at all
+
+      case Status.pendingApproval:
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(snackBar('Your insurance request is being processed',
+              'Processing usually takes 2-3 business days', ContentType.help));
+        return; // Sent insurance request, waiting for approval
+
+      case Status.notPayed:
+        page = RenewalPage(vehicle: vehicle);
+        title = RenewalPage.title;
+        break;
+
+      case Status.payed:
+        page = InsuredPage(vehicle: vehicle);
+        title = InsuredPage.title;
     }
 
     Navigator.push(

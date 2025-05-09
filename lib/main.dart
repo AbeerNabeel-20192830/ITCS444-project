@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/customer/pages/my_vehicles_page.dart';
 import 'package:flutter_project/customer/pages/new_vehicle_page.dart';
 import 'package:flutter_project/firebase_options.dart';
+import 'package:flutter_project/models/insurance_provider.dart';
 import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/theme/theme.dart';
 import 'package:flutter_project/utils.dart';
@@ -23,6 +24,7 @@ void main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider(isDarkMode)),
+      ChangeNotifierProvider(create: (context) => InsuranceProvider()),
       ChangeNotifierProvider(create: (context) => VehicleProvider()),
     ],
     child: const MyApp(),

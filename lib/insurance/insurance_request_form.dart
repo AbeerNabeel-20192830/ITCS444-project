@@ -1,6 +1,10 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/insurance.dart';
+import 'package:flutter_project/models/insurance_provider.dart';
 import 'package:flutter_project/models/vehicle.dart';
+import 'package:provider/provider.dart';
 
 class InsuranceRequestForm extends StatefulWidget {
   Vehicle vehicle;
@@ -168,14 +172,39 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
                     color: Theme.of(context).colorScheme.onPrimaryContainer),
           ),
           ElevatedButton(
-              onPressed: submitInsuranceRequest, child: Text('Submit Request'))
+              onPressed: () => submitInsuranceRequest(),
+              child: Text('Submit Request'))
         ],
       ),
     );
   }
 
-  void submitInsuranceRequest() {
-    // TODO
+  void submitInsuranceRequest() async {
+    Vehicle vehicle = widget.vehicle;
+    Insurance insurance;
+
+    if (selectedOfferIndex != -1) {
+      InsuranceOffer offer = InsuranceOffer.oferrsList[selectedOfferIndex];
+      insurance = Insurance(
+        vehicleId: vehicle.id,
+        vehicle: vehicle,
+        selectedOffer: offer,
+      );
+    } else {
+      insurance = Insurance(
+        vehicleId: vehicle.id,
+        vehicle: vehicle,
+        accident: accident,
+      );
+    }
+
+    vehicle.insurance = insurance;
+    context.read<InsuranceProvider>().addInsurance(insurance);
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar('Your insurance request was sent',
+          'Processing usually takes 2-3 business days', ContentType.success));
+    Navigator.pop(context);
   }
 
   Widget _offers() {
@@ -245,7 +274,8 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
               );
             }),
         ElevatedButton(
-            onPressed: submitInsuranceRequest, child: Text('Choose Offer'))
+            onPressed: () => submitInsuranceRequest(),
+            child: Text('Choose Offer'))
       ],
     );
   }
