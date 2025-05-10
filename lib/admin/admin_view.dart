@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/admin/pages/offers_page.dart';
 import 'package:flutter_project/admin/pages/requests_page.dart';
+import 'package:flutter_project/components/custom_appbar.dart';
 import 'package:flutter_project/settings_page.dart';
-import 'package:flutter_project/theme/theme.dart';
-import 'package:flutter_project/theme/theme_provider.dart';
 import 'package:flutter_project/utils.dart';
-import 'package:provider/provider.dart';
 
 class AdminView extends StatefulWidget {
   const AdminView({super.key});
@@ -26,6 +25,14 @@ class _AdminViewState extends State<AdminView> {
         page = const InsuranceRequestsPage();
         break;
       case 1:
+        title = 'Accident Reports';
+        page = const Placeholder();
+        break;
+      case 2:
+        title = 'Offers';
+        page = const OffersPage();
+        break;
+      case 3:
         title = 'Settings';
         page = const SettingsPage();
         break;
@@ -33,30 +40,9 @@ class _AdminViewState extends State<AdminView> {
         page = const Placeholder();
     }
     return Scaffold(
-      appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 20),
-          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(top: 20, right: 20),
-            child: IconButton(
-              onPressed: () {
-                Provider.of<ThemeProvider>(
-                  context,
-                  listen: false,
-                ).toggleTheme();
-              },
-              icon: Provider.of<ThemeProvider>(context).themeData == lightMode
-                  ? Icon(Icons.light_mode)
-                  : Icon(Icons.dark_mode),
-            ),
-          ),
-        ],
-      ),
+      appBar: appBar(context, title),
       body: Align(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         child: SizedBox(
           width: maxWidth,
           child: SingleChildScrollView(
@@ -69,6 +55,10 @@ class _AdminViewState extends State<AdminView> {
         destinations: const [
           NavigationDestination(
               icon: Icon(Icons.request_page), label: 'Insurance Requests'),
+          NavigationDestination(
+              icon: Icon(Icons.car_crash), label: 'Accident Reports'),
+          NavigationDestination(
+              icon: Icon(Icons.monetization_on), label: 'Offers'),
           NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
         selectedIndex: selectedIndex,

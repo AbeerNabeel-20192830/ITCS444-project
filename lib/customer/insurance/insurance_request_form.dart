@@ -1,5 +1,6 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/admin/offers/offer_provider.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/insurance.dart';
 import 'package:flutter_project/customer/insurance/insurance_provider.dart';
@@ -21,9 +22,7 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
   ];
   final List<bool> _selectedTypes = [true, false];
   int _selectedIndex = 0;
-
   int selectedOfferIndex = -1;
-
   bool accident = false;
 
   @override
@@ -180,11 +179,12 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
   }
 
   void submitInsuranceRequest() async {
+              List offerList = context.watch<OfferProvider>().offerList;
     Vehicle vehicle = widget.vehicle;
     Insurance insurance;
 
     if (selectedOfferIndex != -1) {
-      InsuranceOffer offer = InsuranceOffer.oferrsList[selectedOfferIndex];
+      InsuranceOffer offer = offerList[selectedOfferIndex];
       insurance = Insurance(
         vehicleId: vehicle.id,
         vehicle: vehicle,
@@ -208,14 +208,16 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
   }
 
   Widget _offers() {
+          List offerList = context.watch<OfferProvider>().offerList;
+
     return Column(
       spacing: 20,
       children: [
         ListView.builder(
             shrinkWrap: true,
-            itemCount: InsuranceOffer.oferrsList.length,
+            itemCount: offerList.length,
             itemBuilder: (context, i) {
-              InsuranceOffer offer = InsuranceOffer.oferrsList[i];
+              InsuranceOffer offer = offerList[i];
 
               return GestureDetector(
                 onTap: () {

@@ -187,8 +187,8 @@ class _VehicleFormState extends State<VehicleForm> {
                 return 'Number of passengers must be a number';
               }
 
-              if (int.tryParse(value) == 0) {
-                return 'Number of passengers must be greater than zero';
+              if (int.parse(value) <= 0) {
+                return 'Number of passengers must be positive';
               }
 
               return null;
@@ -250,6 +250,10 @@ class _VehicleFormState extends State<VehicleForm> {
                 return 'Car price must be a number';
               }
 
+              if (double.parse(value) <= 0) {
+                return 'Car price must be positive';
+              }
+
               return null;
             },
           ),
@@ -269,7 +273,7 @@ class _VehicleFormState extends State<VehicleForm> {
                   onPressed: () => vehicleForm.currentState!.reset(),
                   child: const Text('Reset'))
             ],
-          )
+          ),
         ],
       ),
     );

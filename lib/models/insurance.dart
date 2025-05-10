@@ -96,22 +96,5 @@ class InsuranceOffer {
   double price;
   List<String>? features;
 
-  // must be empty and added from isurance_offer_form
-  static List<InsuranceOffer> oferrsList = [
-    InsuranceOffer(
-        name: 'Regular',
-        price: 80,
-        features: ['No road assist', 'Up to 1000 BHD in damages']),
-    InsuranceOffer(
-        name: 'Premium',
-        price: 150,
-        features: ['Road assist', 'Up to 5000 BHD in damages']),
-    InsuranceOffer(name: 'Enterprise', price: 250, features: [
-      'Road assist',
-      'Up to 10000 BHD in damages',
-      'Insurance covers up to 10 vehicles'
-    ]),
-  ];
-
   InsuranceOffer({required this.name, required this.price, this.features});
 }

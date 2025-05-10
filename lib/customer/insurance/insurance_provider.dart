@@ -1,18 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/admin/offers/offer_provider.dart';
 import 'package:flutter_project/models/insurance.dart';
 
 class InsuranceProvider extends ChangeNotifier {
   final String uid;
+  final OfferProvider offerProvider;
   List<Insurance> insuranceList = [];
 
-  InsuranceProvider({required this.uid}) {
+  InsuranceProvider({required this.uid, required this.offerProvider}) {
     getData();
   }
 
   Future<void> getData() async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('users').doc(uid).collection('insurances');
+    CollectionReference collectionRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('insurances');
     QuerySnapshot querySnapshot = await collectionRef.get();
 
     // Get data from docs and convert map to List
@@ -22,7 +26,7 @@ class InsuranceProvider extends ChangeNotifier {
             accident: doc['accident'],
             paymentDate: doc['paymentDate']?.toDate(),
             selectedOffer: doc['selectedOffer'] != null
-                ? InsuranceOffer.oferrsList
+                ? offerProvider.offerList
                     .firstWhere((offer) => offer.name == doc['selectedOffer'])
                 : null,
             status: Status.getValueFromLabel(doc['status'])))
@@ -54,8 +58,10 @@ class InsuranceProvider extends ChangeNotifier {
   }
 
   Future<void> _setFirebase(Insurance insurance) async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('users').doc(uid).collection('insurances');
+    CollectionReference collectionRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('insurances');
 
     await collectionRef.doc(insurance.vehicleId).set({
       'vehicleId': insurance.vehicleId,
@@ -67,8 +73,10 @@ class InsuranceProvider extends ChangeNotifier {
   }
 
   Future<void> _removeFirebase(Insurance insurance) async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('users').doc(uid).collection('insurances');
+    CollectionReference collectionRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('insurances');
 
     await collectionRef.doc(insurance.vehicleId).delete();
   }

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/components/custom_appbar.dart';
 import 'package:flutter_project/customer/pages/accident_report.dart';
 import 'package:flutter_project/customer/pages/my_vehicles_page.dart';
 import 'package:flutter_project/customer/pages/new_vehicle_page.dart';
 import 'package:flutter_project/settings_page.dart';
-import 'package:flutter_project/theme/theme.dart';
-import 'package:flutter_project/theme/theme_provider.dart';
 import 'package:flutter_project/utils.dart';
-import 'package:provider/provider.dart';
 
 class UserView extends StatefulWidget {
   const UserView({super.key});
@@ -43,28 +41,7 @@ class _UserViewState extends State<UserView> {
         page = const Placeholder();
     }
     return Scaffold(
-      appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(top: 20, left: 20),
-          child: Text(title, style: Theme.of(context).textTheme.titleLarge),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(top: 20, right: 20),
-            child: IconButton(
-              onPressed: () {
-                Provider.of<ThemeProvider>(
-                  context,
-                  listen: false,
-                ).toggleTheme();
-              },
-              icon: Provider.of<ThemeProvider>(context).themeData == lightMode
-                  ? Icon(Icons.light_mode)
-                  : Icon(Icons.dark_mode),
-            ),
-          ),
-        ],
-      ),
+      appBar: appBar(context, title),
       body: Align(
         alignment: Alignment.center,
         child: SizedBox(

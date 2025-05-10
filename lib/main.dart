@@ -1,10 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/admin/offers/offer_provider.dart';
 import 'package:flutter_project/authentication.dart';
 import 'package:flutter_project/firebase_options.dart';
-import 'package:flutter_project/views/admin_view.dart';
-import 'package:flutter_project/views/user_view.dart';
+import 'package:flutter_project/admin/admin_view.dart';
+import 'package:flutter_project/customer/user_view.dart';
 import 'package:flutter_project/customer/insurance/insurance_provider.dart';
 import 'package:flutter_project/customer/vehicle/vehicle_provider.dart';
 import 'package:flutter_project/views/non_logged_view.dart';
@@ -25,9 +26,17 @@ void main() async {
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider(isDarkMode)),
       ChangeNotifierProvider(create: (context) => Authentication()),
-      ChangeNotifierProvider(
-          create: (context) =>
-              InsuranceProvider(uid: FirebaseAuth.instance.currentUser!.uid)),
+      ChangeNotifierProvider(create: (context) => OfferProvider()),
+      ChangeNotifierProxyProvider<OfferProvider, InsuranceProvider>(
+        create: (context) => InsuranceProvider(
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          offerProvider: context.read<OfferProvider>(),
+        ),
+        update: (context, offerProvider, previous) => InsuranceProvider(
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          offerProvider: offerProvider,
+        ),
+      ),
       ChangeNotifierProvider(
           create: (context) =>
               VehicleProvider(uid: FirebaseAuth.instance.currentUser!.uid)),
@@ -69,13 +78,13 @@ class _HomePageState extends State<HomePage> {
 
           if (snapshot.hasData) {
             // User is logged in
-            if (context.watch<Authentication>().isAdmin) {
-              return AdminView();
+            if (context.read<Authentication>().isAdmin) {
+              return const AdminView();
             }
-            return UserView();
+            return const UserView();
           } else {
             // User is not logged in
-            return NonLoggedInView();
+            return const NonLoggedInView();
           }
         },
       ),
