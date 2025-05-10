@@ -33,17 +33,26 @@ class Insurance {
   String vehicleId;
   bool accident;
   DateTime? paymentDate;
+  DateTime? startDate;
+  DateTime? endDate;
   InsuranceOffer? selectedOffer;
   Vehicle? vehicle;
   Status status;
+  String? policyId;
+  double? finalPrice;
 
-  Insurance(
-      {required this.vehicleId,
-      this.selectedOffer,
-      this.accident = false,
-      this.paymentDate,
-      this.vehicle,
-      this.status = Status.pendingApproval});
+  Insurance({
+    required this.vehicleId,
+    this.selectedOffer,
+    this.accident = false,
+    this.paymentDate,
+    this.startDate,
+    this.endDate,
+    this.vehicle,
+    this.status = Status.pendingApproval,
+    this.policyId,
+    this.finalPrice,
+  });
 
   price() {
     if (selectedOffer != null) {
