@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/customer/pages/accident_report.dart';
 import 'package:flutter_project/customer/pages/my_vehicles_page.dart';
 import 'package:flutter_project/customer/pages/new_vehicle_page.dart';
+import 'package:flutter_project/settings_page.dart';
 import 'package:flutter_project/theme/theme.dart';
 import 'package:flutter_project/theme/theme_provider.dart';
 import 'package:flutter_project/utils.dart';
 import 'package:provider/provider.dart';
 
-class LoggedInView extends StatefulWidget {
-  const LoggedInView({super.key});
+class UserView extends StatefulWidget {
+  const UserView({super.key});
 
   @override
-  State<LoggedInView> createState() => _LoggedInViewState();
+  State<UserView> createState() => _UserViewState();
 }
 
-class _LoggedInViewState extends State<LoggedInView> {
+class _UserViewState extends State<UserView> {
   var title = '';
   var selectedIndex = 0;
 
@@ -33,6 +34,10 @@ class _LoggedInViewState extends State<LoggedInView> {
       case 2:
         title = 'Report Accident';
         page = const AccidentReportPage();
+        break;
+      case 3:
+        title = 'Settings';
+        page = const SettingsPage();
         break;
       default:
         page = const Placeholder();
@@ -78,6 +83,7 @@ class _LoggedInViewState extends State<LoggedInView> {
               icon: Icon(Icons.directions_car), label: 'My Vehicles'),
           NavigationDestination(
               icon: Icon(Icons.car_crash), label: 'Report Accident'),
+          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
         selectedIndex: selectedIndex,
         onDestinationSelected: (value) {

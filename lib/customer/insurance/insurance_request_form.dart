@@ -2,7 +2,7 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/insurance.dart';
-import 'package:flutter_project/models/insurance_provider.dart';
+import 'package:flutter_project/customer/insurance/insurance_provider.dart';
 import 'package:flutter_project/models/vehicle.dart';
 import 'package:provider/provider.dart';
 

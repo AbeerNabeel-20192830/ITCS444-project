@@ -1,4 +1,8 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/authentication.dart';
+import 'package:flutter_project/components/custom_snackbar.dart';
+import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -8,7 +12,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  TextEditingController username = TextEditingController();
+  TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
   @override
@@ -27,7 +31,7 @@ class _RegisterState extends State<Register> {
             height: 30,
           ),
           TextField(
-            controller: username,
+            controller: email,
             keyboardType: TextInputType.name,
             decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -50,7 +54,26 @@ class _RegisterState extends State<Register> {
             height: 20,
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () async {
+              try {
+                // Call the login method from the Authentication class
+                await context.read<Authentication>().register(
+                      email.text.trim(),
+                      password.text,
+                    );
+                // Navigate to the home screen or show a success message
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(snackBar('Registration successful',
+                      'Welcome, ${email.text}!', ContentType.success));
+              } catch (e) {
+                // Show an error message if login fails
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(snackBar(
+                      'Registration failed', '$e', ContentType.failure));
+              }
+            },
             child: const Text('Register'),
           )
         ],

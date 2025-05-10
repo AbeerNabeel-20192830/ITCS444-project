@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/insurance/insurance_request_form.dart';
+import 'package:flutter_project/customer/insurance/insurance_request_form.dart';
 import 'package:flutter_project/models/vehicle.dart';
 
 class NewInsurancePage extends StatefulWidget {

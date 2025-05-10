@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_project/vehicle/vehicle_form.dart';
+import 'package:flutter_project/customer/vehicle/vehicle_form.dart';
 
 class NewVehiclePage extends StatefulWidget {
   const NewVehiclePage({super.key});

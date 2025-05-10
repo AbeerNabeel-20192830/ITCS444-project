@@ -3,10 +3,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/authentication.dart';
 import 'package:flutter_project/firebase_options.dart';
-import 'package:flutter_project/logged_view.dart';
-import 'package:flutter_project/models/insurance_provider.dart';
-import 'package:flutter_project/models/vehicle_provider.dart';
-import 'package:flutter_project/non_logged_view.dart';
+import 'package:flutter_project/views/admin_view.dart';
+import 'package:flutter_project/views/user_view.dart';
+import 'package:flutter_project/customer/insurance/insurance_provider.dart';
+import 'package:flutter_project/customer/vehicle/vehicle_provider.dart';
+import 'package:flutter_project/views/non_logged_view.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_project/theme/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,7 +69,10 @@ class _HomePageState extends State<HomePage> {
 
           if (snapshot.hasData) {
             // User is logged in
-            return LoggedInView();
+            if (context.watch<Authentication>().isAdmin) {
+              return AdminView();
+            }
+            return UserView();
           } else {
             // User is not logged in
             return NonLoggedInView();

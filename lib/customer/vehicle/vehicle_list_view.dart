@@ -6,11 +6,11 @@ import 'package:flutter_project/customer/pages/insured_page.dart';
 import 'package:flutter_project/customer/pages/new_insurance_page.dart';
 import 'package:flutter_project/customer/pages/renewal_page.dart';
 import 'package:flutter_project/models/insurance.dart';
-import 'package:flutter_project/models/insurance_provider.dart';
-import 'package:flutter_project/models/vehicle_provider.dart';
+import 'package:flutter_project/customer/insurance/insurance_provider.dart';
+import 'package:flutter_project/customer/vehicle/vehicle_provider.dart';
 import 'package:flutter_project/utils.dart';
 import 'package:flutter_project/models/vehicle.dart';
-import 'package:flutter_project/vehicle/vehicle_form.dart';
+import 'package:flutter_project/customer/vehicle/vehicle_form.dart';
 import 'package:provider/provider.dart';
 
 class VehicleListView extends StatefulWidget {

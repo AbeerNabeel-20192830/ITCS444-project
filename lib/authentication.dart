@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/admin_emails.dart';
 
 class Authentication with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -27,9 +28,10 @@ class Authentication with ChangeNotifier {
       );
       _user = userCredential.user;
 
+      await _checkAdminRole();
       notifyListeners();
     } catch (e) {
-      throw Exception('Failed to sign up: $e');
+      throw Exception(e);
     }
   }
 
@@ -42,10 +44,10 @@ class Authentication with ChangeNotifier {
       );
       _user = userCredential.user;
 
-      await _checkAdminRole(); // Check if the user is an admin
+      await _checkAdminRole();
       notifyListeners();
     } catch (e) {
-      throw Exception('Failed to log in: $e');
+      throw Exception(e);
     }
   }
 
@@ -57,15 +59,16 @@ class Authentication with ChangeNotifier {
       _isAdmin = false;
       notifyListeners();
     } catch (e) {
-      throw Exception('Failed to log out: $e');
+      throw Exception(e);
     }
   }
 
   // Check if user is admin
   Future<void> _checkAdminRole() async {
     if (_user != null) {
-      final idTokenResult = await _user!.getIdTokenResult();
-      _isAdmin = idTokenResult.claims?['admin'] ?? false;
+      if (adminEmails.contains(_user!.email)) {
+        _isAdmin = true;
+      }
     } else {
       _isAdmin = false;
     }
@@ -75,14 +78,5 @@ class Authentication with ChangeNotifier {
   // Check if user is logged in
   bool isLoggedIn() {
     return _user != null;
-  }
-
-  // Reset password
-  Future<void> resetPassword(String email) async {
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-    } catch (e) {
-      throw Exception('Failed to send password reset email: $e');
-    }
   }
 }
