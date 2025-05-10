@@ -3,6 +3,7 @@ import 'package:flutter_project/auth/login.dart';
 import 'package:flutter_project/auth/register.dart';
 import 'package:flutter_project/theme/theme.dart';
 import 'package:flutter_project/theme/theme_provider.dart';
+import 'package:flutter_project/utils.dart';
 import 'package:provider/provider.dart';
 
 class NonLoggedInView extends StatefulWidget {
@@ -60,7 +61,11 @@ class _NonLoggedInViewState extends State<NonLoggedInView> {
               ),
             ]),
           ),
-          body: TabBarView(children: [Login(), Register()])),
+          body: Center(
+            child: SizedBox(
+                width: maxWidth,
+                child: TabBarView(children: [Login(), Register()])),
+          )),
     );
   }
 }

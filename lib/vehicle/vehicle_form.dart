@@ -47,17 +47,7 @@ class _VehicleFormState extends State<VehicleForm> {
       passengers.text = vehicle.passengers.toString();
       driverBirth.text = dateToString(vehicle.driverBirth);
       carPrice.text = vehicle.carPrice.toString();
-      vehicle = widget.vehicle!;
-      customerName.text = vehicle.customerName;
-      carModel.text = vehicle.carModel;
-      chassisNumber.text = vehicle.chassisNumber;
-      manuYear.text = vehicle.manuYear.toString();
-      regNumber.text = vehicle.regNumber;
-      passengers.text = vehicle.passengers.toString();
-      driverBirth.text = dateToString(vehicle.driverBirth);
-      carPrice.text = vehicle.carPrice.toString();
 
-      driverAge = vehicle.driverAge();
       driverAge = vehicle.driverAge();
     }
 
@@ -108,7 +98,7 @@ class _VehicleFormState extends State<VehicleForm> {
             controller: chassisNumber,
             decoration: const InputDecoration(
               labelText: 'Chassis Number',
-              icon: Icon(Icons.pin),
+              icon: Icon(Icons.numbers),
             ),
             validator: (value) {
               if (value!.isEmpty) {
@@ -165,7 +155,7 @@ class _VehicleFormState extends State<VehicleForm> {
             controller: regNumber,
             decoration: const InputDecoration(
               labelText: 'Registration Number',
-              icon: Icon(Icons.numbers),
+              icon: Icon(Icons.pin),
             ),
             keyboardType: const TextInputType.numberWithOptions(),
             validator: (value) {

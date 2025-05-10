@@ -3,15 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/models/vehicle.dart';
 
 class VehicleProvider extends ChangeNotifier {
+  final String uid;
+  bool isLoading = true;
   List<Vehicle> vehicleList = [];
 
-  VehicleProvider() {
+  VehicleProvider({required this.uid}) {
     getData();
   }
 
   Future<void> getData() async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('vehicles');
+    CollectionReference collectionRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('vehicles');
     QuerySnapshot querySnapshot = await collectionRef.get();
 
     // Get data from docs and convert map to List
@@ -28,6 +32,7 @@ class VehicleProvider extends ChangeNotifier {
           carPrice: doc['carPrice']);
     }).toList();
 
+    isLoading = false;
     notifyListeners();
   }
 
@@ -53,8 +58,10 @@ class VehicleProvider extends ChangeNotifier {
   }
 
   Future<void> _setFirebase(Vehicle vehicle) async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('vehicles');
+    CollectionReference collectionRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('vehicles');
 
     await collectionRef.doc(vehicle.id).set({
       'id': vehicle.id,
@@ -70,8 +77,10 @@ class VehicleProvider extends ChangeNotifier {
   }
 
   Future<void> _removeFirebase(Vehicle vehicle) async {
-    CollectionReference collectionRef =
-        FirebaseFirestore.instance.collection('vehicles');
+    CollectionReference collectionRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('vehicles');
 
     await collectionRef.doc(vehicle.id).delete();
   }

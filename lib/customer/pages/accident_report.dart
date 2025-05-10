@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_project/theme/theme_provider.dart';
-import 'package:flutter_project/utils.dart';
 
 class AccidentReportPage extends StatefulWidget {
   final double carValue;
@@ -45,129 +42,92 @@ class _AccidentReportPageState extends State<AccidentReportPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Accident Report',
-            style: theme.textTheme.titleMedium,
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                Provider.of<ThemeProvider>(context, listen: false)
-                    .toggleTheme();
-              },
-              icon: theme.brightness == Brightness.dark
-                  ? const Icon(Icons.dark_mode)
-                  : const Icon(Icons.light_mode),
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            controller: _dateController,
+            readOnly: true,
+            decoration: InputDecoration(
+              labelText: 'Accident Date',
+              prefixIcon: const Icon(Icons.calendar_today),
             ),
-            const SizedBox(width: 10),
-          ],
-        ),
-        body: Align(
-          alignment: Alignment.topCenter,
-          child: SizedBox(
-            width: maxWidth,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _dateController,
-                      readOnly: true,
-                      decoration: InputDecoration(
-                        labelText: 'Accident Date',
-                        prefixIcon: const Icon(Icons.calendar_today),
-                      ),
-                      onTap: () async {
-                        DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2100),
-                        );
-                        if (pickedDate != null) {
-                          _dateController.text =
-                              pickedDate.toLocal().toString().split(' ')[0];
-                        }
-                      },
-                      validator: (value) => value!.isEmpty
-                          ? 'Please enter the accident date'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _damagePartsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Damaged Parts',
-                        prefixIcon: Icon(Icons.car_repair),
-                      ),
-                      validator: (value) => value!.isEmpty
-                          ? 'Please enter the damaged parts'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _repairCostController,
-                      decoration: const InputDecoration(
-                        labelText: 'Repair Cost (BD)',
-                        prefixIcon: Icon(Icons.attach_money),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter the repair cost';
-                        }
-                        final cost = double.tryParse(value);
-                        if (cost == null || cost < 0) {
-                          return 'Enter a valid positive number';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: submitReport,
-                            child: const Text('Send Report'),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              clearFields();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Fields cleared'),
-                                  backgroundColor:
-                                      Color.fromARGB(255, 191, 89, 6),
-                                ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.grey,
-                            ),
-                            child: const Text('Clear'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+            onTap: () async {
+              DateTime? pickedDate = await showDatePicker(
+                context: context,
+                initialDate: DateTime.now(),
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+              );
+              if (pickedDate != null) {
+                _dateController.text =
+                    pickedDate.toLocal().toString().split(' ')[0];
+              }
+            },
+            validator: (value) =>
+                value!.isEmpty ? 'Please enter the accident date' : null,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _damagePartsController,
+            decoration: const InputDecoration(
+              labelText: 'Damaged Parts',
+              prefixIcon: Icon(Icons.car_repair),
+            ),
+            validator: (value) =>
+                value!.isEmpty ? 'Please enter the damaged parts' : null,
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _repairCostController,
+            decoration: const InputDecoration(
+              labelText: 'Repair Cost (BD)',
+              prefixIcon: Icon(Icons.attach_money),
+            ),
+            keyboardType: TextInputType.number,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter the repair cost';
+              }
+              final cost = double.tryParse(value);
+              if (cost == null || cost < 0) {
+                return 'Enter a valid positive number';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: submitReport,
+                  child: const Text('Send Report'),
                 ),
               ),
-            ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    clearFields();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Fields cleared'),
+                        backgroundColor: Color.fromARGB(255, 191, 89, 6),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                  ),
+                  child: const Text('Clear'),
+                ),
+              ),
+            ],
           ),
-        ),
+        ],
       ),
     );
   }
 }
-

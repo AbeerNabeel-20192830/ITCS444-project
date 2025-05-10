@@ -27,13 +27,6 @@ class Authentication with ChangeNotifier {
       );
       _user = userCredential.user;
 
-      // Send email verification
-      if (_user != null && !_user!.emailVerified) {
-        await _user!.sendEmailVerification();
-        throw Exception(
-            'A verification email has been sent to $email. Please verify your email before logging in.');
-      }
-
       notifyListeners();
     } catch (e) {
       throw Exception('Failed to sign up: $e');
@@ -48,13 +41,6 @@ class Authentication with ChangeNotifier {
         password: password,
       );
       _user = userCredential.user;
-
-      // Check if email is verified
-      if (_user != null && !_user!.emailVerified) {
-        await _auth.signOut();
-        throw Exception(
-            'Email not verified. Please check your inbox and verify your email.');
-      }
 
       await _checkAdminRole(); // Check if the user is an admin
       notifyListeners();

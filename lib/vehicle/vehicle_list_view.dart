@@ -36,12 +36,13 @@ class _VehicleListViewState extends State<VehicleListView> {
       }
     }
 
-    if (vehicleList.isEmpty) {
+    if (context.read<VehicleProvider>().isLoading) {
       return Center(
         child: CircularProgressIndicator(),
       );
     }
 
+    // Show message if empty
     if (vehicleList.isEmpty) {
       return Center(
         child: Text(

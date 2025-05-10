@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/customer/pages/accident_report.dart';
 import 'package:flutter_project/customer/pages/my_vehicles_page.dart';
 import 'package:flutter_project/customer/pages/new_vehicle_page.dart';
 import 'package:flutter_project/theme/theme.dart';
@@ -28,6 +29,10 @@ class _LoggedInViewState extends State<LoggedInView> {
       case 1:
         title = 'My Vehicles';
         page = const MyVehiclesPage();
+        break;
+      case 2:
+        title = 'Report Accident';
+        page = const AccidentReportPage();
         break;
       default:
         page = const Placeholder();
@@ -71,6 +76,8 @@ class _LoggedInViewState extends State<LoggedInView> {
               icon: Icon(Icons.add_circle), label: 'New Vehicle'),
           NavigationDestination(
               icon: Icon(Icons.directions_car), label: 'My Vehicles'),
+          NavigationDestination(
+              icon: Icon(Icons.car_crash), label: 'Report Accident'),
         ],
         selectedIndex: selectedIndex,
         onDestinationSelected: (value) {

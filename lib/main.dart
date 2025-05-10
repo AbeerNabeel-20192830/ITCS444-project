@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_project/authentication.dart';
 import 'package:flutter_project/firebase_options.dart';
 import 'package:flutter_project/logged_view.dart';
 import 'package:flutter_project/models/insurance_provider.dart';
@@ -22,8 +23,13 @@ void main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => ThemeProvider(isDarkMode)),
-      ChangeNotifierProvider(create: (context) => InsuranceProvider()),
-      ChangeNotifierProvider(create: (context) => VehicleProvider()),
+      ChangeNotifierProvider(create: (context) => Authentication()),
+      ChangeNotifierProvider(
+          create: (context) =>
+              InsuranceProvider(uid: FirebaseAuth.instance.currentUser!.uid)),
+      ChangeNotifierProvider(
+          create: (context) =>
+              VehicleProvider(uid: FirebaseAuth.instance.currentUser!.uid)),
     ],
     child: const MyApp(),
   ));
