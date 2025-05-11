@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:age_calculator/age_calculator.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/vehicle.dart';
-import 'package:flutter_project/customer/vehicle/vehicle_provider.dart';
+import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/utils.dart';
 import 'package:provider/provider.dart';
 

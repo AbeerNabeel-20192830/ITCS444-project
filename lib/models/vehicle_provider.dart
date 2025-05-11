@@ -3,15 +3,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/models/vehicle.dart';
 
 class VehicleProvider extends ChangeNotifier {
-  final String uid;
+  String uid;
+  final bool isAdmin;
   bool isLoading = true;
   List<Vehicle> vehicleList = [];
 
-  VehicleProvider({required this.uid}) {
-    getData();
+  VehicleProvider({required this.uid, required this.isAdmin}) {
+    if (isAdmin) {
+      getAllData();
+    } else {
+      getUserData();
+    }
   }
 
-  Future<void> getData() async {
+  Future<void> getAllData() async {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collectionGroup('vehicles').get();
+
+    // Get data from docs and convert map to List
+    vehicleList = querySnapshot.docs.map((doc) {
+
+            String path = doc.reference.path;
+      List<String> segments = path.split('/');
+      this.uid = segments[1];
+
+      return Vehicle(
+        uid: uid,
+          id: doc['id'],
+          customerName: doc['customerName'],
+          carModel: doc['carModel'],
+          chassisNumber: doc['chassisNumber'],
+          manuYear: doc['manuYear'],
+          regNumber: doc['regNumber'],
+          passengers: doc['passengers'],
+          driverBirth: doc['driverBirth'].toDate(),
+          carPrice: doc['carPrice']);
+    }).toList();
+
+    isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> getUserData() async {
     CollectionReference collectionRef = FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
@@ -21,6 +54,7 @@ class VehicleProvider extends ChangeNotifier {
     // Get data from docs and convert map to List
     vehicleList = querySnapshot.docs.map((doc) {
       return Vehicle(
+        uid: uid,
           id: doc['id'],
           customerName: doc['customerName'],
           carModel: doc['carModel'],
@@ -60,7 +94,7 @@ class VehicleProvider extends ChangeNotifier {
   Future<void> _setFirebase(Vehicle vehicle) async {
     CollectionReference collectionRef = FirebaseFirestore.instance
         .collection('users')
-        .doc(uid)
+        .doc(vehicle.uid ?? uid)
         .collection('vehicles');
 
     await collectionRef.doc(vehicle.id).set({
@@ -79,7 +113,7 @@ class VehicleProvider extends ChangeNotifier {
   Future<void> _removeFirebase(Vehicle vehicle) async {
     CollectionReference collectionRef = FirebaseFirestore.instance
         .collection('users')
-        .doc(uid)
+        .doc(vehicle.uid ?? uid)
         .collection('vehicles');
 
     await collectionRef.doc(vehicle.id).delete();

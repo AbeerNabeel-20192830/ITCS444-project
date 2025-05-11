@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_project/admin/offers/offer_provider.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/insurance.dart';
-import 'package:flutter_project/customer/insurance/insurance_provider.dart';
+import 'package:flutter_project/models/insurance_provider.dart';
 import 'package:flutter_project/models/vehicle.dart';
 import 'package:provider/provider.dart';
 
@@ -179,7 +179,7 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
   }
 
   void submitInsuranceRequest() async {
-              List offerList = context.watch<OfferProvider>().offerList;
+    List offerList = context.read<OfferProvider>().offerList;
     Vehicle vehicle = widget.vehicle;
     Insurance insurance;
 
@@ -199,16 +199,19 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
     }
 
     vehicle.insurance = insurance;
+
     context.read<InsuranceProvider>().addInsurance(insurance);
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(snackBar('Your insurance request was sent',
           'Processing usually takes 2-3 business days', ContentType.success));
+
     Navigator.pop(context);
   }
 
   Widget _offers() {
-          List offerList = context.watch<OfferProvider>().offerList;
+    List offerList = context.watch<OfferProvider>().offerList;
 
     return Column(
       spacing: 20,

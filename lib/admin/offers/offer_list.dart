@@ -15,7 +15,7 @@ class OfferList extends StatefulWidget {
 class _OfferListState extends State<OfferList> {
   @override
   Widget build(BuildContext context) {
-    List offerList = context.watch<OfferProvider>().offerList;
+    List offerList = context.read<OfferProvider>().offerList;
 
     if (context.watch<OfferProvider>().isLoading) {
       return Center(child: CircularProgressIndicator());

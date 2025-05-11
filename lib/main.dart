@@ -6,8 +6,8 @@ import 'package:flutter_project/authentication.dart';
 import 'package:flutter_project/firebase_options.dart';
 import 'package:flutter_project/admin/admin_view.dart';
 import 'package:flutter_project/customer/user_view.dart';
-import 'package:flutter_project/customer/insurance/insurance_provider.dart';
-import 'package:flutter_project/customer/vehicle/vehicle_provider.dart';
+import 'package:flutter_project/models/insurance_provider.dart';
+import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/views/non_logged_view.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_project/theme/theme_provider.dart';
@@ -27,19 +27,17 @@ void main() async {
       ChangeNotifierProvider(create: (context) => ThemeProvider(isDarkMode)),
       ChangeNotifierProvider(create: (context) => Authentication()),
       ChangeNotifierProvider(create: (context) => OfferProvider()),
-      ChangeNotifierProxyProvider<OfferProvider, InsuranceProvider>(
+      ChangeNotifierProvider(
         create: (context) => InsuranceProvider(
           uid: FirebaseAuth.instance.currentUser!.uid,
           offerProvider: context.read<OfferProvider>(),
-        ),
-        update: (context, offerProvider, previous) => InsuranceProvider(
-          uid: FirebaseAuth.instance.currentUser!.uid,
-          offerProvider: offerProvider,
+          isAdmin: context.read<Authentication>().isAdmin,
         ),
       ),
       ChangeNotifierProvider(
-          create: (context) =>
-              VehicleProvider(uid: FirebaseAuth.instance.currentUser!.uid)),
+          create: (context) => VehicleProvider(
+              uid: FirebaseAuth.instance.currentUser!.uid,
+              isAdmin: context.read<Authentication>().isAdmin)),
     ],
     child: const MyApp(),
   ));
@@ -50,11 +48,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Car Insurance App',
-      theme: context.watch<ThemeProvider>().themeData,
-      home: HomePage(),
+      theme: themeProvider.themeData,
+      home: const HomePage(),
     );
   }
 }

@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/authentication.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
+import 'package:flutter_project/theme/theme.dart';
+import 'package:flutter_project/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -18,8 +20,21 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 20,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Card(
+          child: ListTile(
+            title: Text("App Theme"),
+            trailing: IconButton(
+                onPressed: () {
+                  context.read<ThemeProvider>().toggleTheme();
+                },
+                icon: context.watch<ThemeProvider>().themeData == lightMode
+                    ? Icon(Icons.light_mode)
+                    : Icon(Icons.dark_mode)),
+          ),
+        ),
         ElevatedButton(
           onPressed: () async {
             try {

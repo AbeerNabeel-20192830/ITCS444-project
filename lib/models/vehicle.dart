@@ -1,9 +1,9 @@
 import 'package:age_calculator/age_calculator.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_project/models/insurance.dart';
 import 'package:ulid/ulid.dart';
 
 class Vehicle {
+  String? uid;
   late String id;
   String customerName;
   String carModel;
@@ -18,6 +18,7 @@ class Vehicle {
   // Constructor
   Vehicle(
       {id,
+      uid,
       required this.customerName,
       required this.carModel,
       required this.chassisNumber,
@@ -53,21 +54,5 @@ class Vehicle {
     }
 
     return (carPrice - carPrice * years * 0.1);
-  }
-
-  static Future<Vehicle> getVehicle(String id) async {
-    DocumentSnapshot doc =
-        await FirebaseFirestore.instance.collection('vehicles').doc(id).get();
-
-    return Vehicle(
-        id: doc['id'],
-        customerName: doc['customerName'],
-        carModel: doc['carModel'],
-        chassisNumber: doc['chassisNumber'],
-        manuYear: doc['manuYear'],
-        regNumber: doc['regNumber'],
-        passengers: doc['passengers'],
-        driverBirth: doc['driverBirth'].toDate(),
-        carPrice: doc['carPrice']);
   }
 }

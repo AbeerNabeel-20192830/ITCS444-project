@@ -3,8 +3,13 @@ import 'package:flutter_project/components/custom_appbar.dart';
 import 'package:flutter_project/customer/pages/accident_report.dart';
 import 'package:flutter_project/customer/pages/my_vehicles_page.dart';
 import 'package:flutter_project/customer/pages/new_vehicle_page.dart';
+import 'package:flutter_project/models/insurance.dart';
+import 'package:flutter_project/models/insurance_provider.dart';
+import 'package:flutter_project/models/vehicle.dart';
+import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/settings_page.dart';
 import 'package:flutter_project/utils.dart';
+import 'package:provider/provider.dart';
 
 class UserView extends StatefulWidget {
   const UserView({super.key});
@@ -40,6 +45,32 @@ class _UserViewState extends State<UserView> {
       default:
         page = const Placeholder();
     }
+
+    List<Vehicle> vehicleList = context.watch<VehicleProvider>().vehicleList;
+    List<Insurance> insuranceList =
+        context.watch<InsuranceProvider>().insuranceList;
+
+    // initialize insuarances vehicles
+    for (Insurance ins in insuranceList) {
+      int index = vehicleList.indexWhere((v) => v.id == ins.vehicleId);
+      if (index != -1) {
+        ins.vehicle = context.watch<VehicleProvider>().vehicleList[index];
+      } else {
+        // if vehicle not found then delete insurance
+        context.read<InsuranceProvider>().removeInsurance(ins);
+      }
+    }
+
+    // initialize vehicles insurances
+    for (Vehicle vehicle in vehicleList) {
+      int index =
+          insuranceList.indexWhere((ins) => vehicle.id == ins.vehicleId);
+      if (index != -1) {
+        vehicle.insurance =
+            context.watch<InsuranceProvider>().insuranceList[index];
+      }
+    }
+
     return Scaffold(
       appBar: appBar(context, title),
       body: Align(

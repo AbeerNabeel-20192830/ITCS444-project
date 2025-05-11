@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/vehicle.dart';
+import 'package:ulid/ulid.dart';
 
 enum Status {
   notInsured('Not insured', Colors.red),
@@ -30,6 +31,8 @@ enum Status {
 
 // one insurance object is associated with one vehicle
 class Insurance {
+  String? uid;
+  late String id;
   String vehicleId;
   bool accident;
   DateTime? paymentDate;
@@ -42,6 +45,8 @@ class Insurance {
   double? finalPrice;
 
   Insurance({
+    uid,
+    id,
     required this.vehicleId,
     this.selectedOffer,
     this.accident = false,
@@ -52,7 +57,9 @@ class Insurance {
     this.status = Status.pendingApproval,
     this.policyId,
     this.finalPrice,
-  });
+  }) {
+    this.id = id ?? Ulid().toCanonical();
+  }
 
   price() {
     if (selectedOffer != null) {
@@ -68,6 +75,7 @@ class Insurance {
 
   approve() {
     status = Status.notPayed;
+    finalPrice = price();
   }
 
   static double estimatePrice(Vehicle vehicle, bool accident) {
@@ -78,15 +86,6 @@ class Insurance {
 
   void pay() {
     status = Status.payed;
-    paymentDate = DateTime.now();
-  }
-
-  DateTime? nextPaymentDate() {
-    if (paymentDate != null) {
-      return DateTime(
-          paymentDate!.year + 1, paymentDate!.month, paymentDate!.day);
-    }
-    return null;
   }
 }
 
