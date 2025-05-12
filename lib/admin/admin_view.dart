@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_project/admin/pages/admin_accident_page.dart';
 import 'package:flutter_project/admin/pages/offers_page.dart';
 import 'package:flutter_project/admin/pages/requests_page.dart';
 import 'package:flutter_project/components/custom_appbar.dart';
@@ -31,7 +32,7 @@ class _AdminViewState extends State<AdminView> {
         break;
       case 1:
         title = 'Accident Reports';
-        page = const Placeholder();
+        page = const AdminAccidentPage();
         break;
       case 2:
         title = 'Offers';

@@ -18,7 +18,7 @@ class AccidentProvider extends ChangeNotifier {
 
   Future<void> getAllData() async {
     QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collectionGroup('vehicles').get();
+        await FirebaseFirestore.instance.collectionGroup('accidents').get();
 
     // Get data from docs and convert map to List
     accidentList = querySnapshot.docs.map((doc) {
@@ -29,7 +29,7 @@ class AccidentProvider extends ChangeNotifier {
       return Accident(
           uid: uid,
           vehicleId: doc['vehicleId'],
-          accidentDate: doc['accidentDate'],
+          accidentDate: doc['accidentDate'].toDate(),
           damagedParts: doc['damagedParts'],
           repairCost: doc['repairCost'],
           consumptionRate: doc['consumptionRate']);

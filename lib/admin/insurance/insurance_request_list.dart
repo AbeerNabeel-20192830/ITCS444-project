@@ -4,6 +4,7 @@ import 'package:flutter_project/admin/insurance/insurance_request_deatils.dart';
 import 'package:flutter_project/components/pushed_page_scaffold.dart';
 import 'package:flutter_project/models/insurance_provider.dart';
 import 'package:flutter_project/models/insurance.dart';
+import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:provider/provider.dart';
 
 class InsuranceRequestList extends StatefulWidget {
@@ -16,19 +17,19 @@ class InsuranceRequestList extends StatefulWidget {
 class _InsuranceRequestListState extends State<InsuranceRequestList> {
   @override
   Widget build(BuildContext context) {
+    
+    if (context.watch<VehicleProvider>().isLoading ||
+        context.watch<InsuranceProvider>().isLoading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
     List<Insurance> insuranceList = context
         .watch<InsuranceProvider>()
         .insuranceList
         .where((ins) => ins.status == Status.pendingApproval)
         .toList();
-
-
-    if (context.read<InsuranceProvider>().isLoading) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
 
     // Show message if empty
     if (insuranceList.isEmpty) {
@@ -55,7 +56,7 @@ class _InsuranceRequestListState extends State<InsuranceRequestList> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: 10,
                   children: [
-                    Text(insurance.vehicle!.chassisNumber),
+                    Text(insurance.vehicle?.chassisNumber ?? ''),
                     Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4))),
@@ -63,7 +64,7 @@ class _InsuranceRequestListState extends State<InsuranceRequestList> {
                       child: Padding(
                         padding: const EdgeInsets.only(left: 4, right: 4),
                         child: Text(
-                          insurance.vehicle!.regNumber,
+                          insurance.vehicle?.regNumber ?? '',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -80,7 +81,7 @@ class _InsuranceRequestListState extends State<InsuranceRequestList> {
                                   insurance: insurance,
                                 ),
                                 title:
-                                    "${insurance.vehicle!.chassisNumber} Request Details")));
+                                    "${insurance.vehicle?.chassisNumber ?? ''} Request Details")));
                   },
                   child: Text(
                     "Review Request",
@@ -90,11 +91,11 @@ class _InsuranceRequestListState extends State<InsuranceRequestList> {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Customer Name: ${insurance.vehicle!.customerName}"),
+                    Text("Customer Name: ${insurance.vehicle?.customerName}"),
                     Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(4))),
-                      color: insurance.vehicle!.insuranceStatus.color,
+                      color: insurance.vehicle?.insuranceStatus.color,
                       child: Padding(
                         padding: const EdgeInsets.only(
                           left: 12,
@@ -103,7 +104,7 @@ class _InsuranceRequestListState extends State<InsuranceRequestList> {
                           bottom: 4,
                         ),
                         child: Text(
-                          insurance.vehicle!.insuranceStatus.label,
+                          insurance.vehicle?.insuranceStatus.label ?? '',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, color: Colors.black),
                         ),
