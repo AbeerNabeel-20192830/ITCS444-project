@@ -11,9 +11,50 @@ class Register extends StatefulWidget {
   State<Register> createState() => _RegisterState();
 }
 
-class _RegisterState extends State<Register> {
+class _RegisterState extends State<Register> with TickerProviderStateMixin {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
+
+  // Animation controllers
+  late AnimationController _titleController;
+  late Animation<Offset> _titleSlide;
+  late Animation<double> _titleFade;
+  late AnimationController _shakeController;
+
+  bool isLoading = false;
+  bool shake = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _titleController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 700),
+    );
+    _titleSlide =
+        Tween<Offset>(begin: Offset(0, -0.3), end: Offset.zero).animate(
+      CurvedAnimation(parent: _titleController, curve: Curves.easeOut),
+    );
+    _titleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _titleController, curve: Curves.easeIn),
+    );
+    _titleController.forward();
+
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 500),
+    );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _shakeController.dispose();
+    email.dispose();
+    password.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,58 +64,102 @@ class _RegisterState extends State<Register> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            'Register for a new account',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+          SlideTransition(
+            position: _titleSlide,
+            child: FadeTransition(
+              opacity: _titleFade,
+              child: const Text(
+                'Register for a new account',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
-          SizedBox(
-            height: 30,
-          ),
+          SizedBox(height: 30),
           TextField(
             controller: email,
             keyboardType: TextInputType.name,
             decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Email',
-                icon: Icon(Icons.person)),
+              border: OutlineInputBorder(),
+              labelText: 'Email',
+              icon: Icon(Icons.person),
+            ),
           ),
-          Container(
-            height: 20,
-          ),
+          Container(height: 20),
           TextField(
             controller: password,
             obscureText: true,
             keyboardType: TextInputType.text,
             decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Password',
-                icon: Icon(Icons.password)),
+              border: OutlineInputBorder(),
+              labelText: 'Password',
+              icon: Icon(Icons.password),
+            ),
           ),
-          Container(
-            height: 20,
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              try {
-                // Call the login method from the Authentication class
-                await context.read<Authentication>().register(
-                      email.text.trim(),
-                      password.text,
-                    );
-                // Navigate to the home screen or show a success message
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(snackBar('Registration successful',
-                      'Welcome, ${email.text}!', ContentType.success));
-              } catch (e) {
-                // Show an error message if login fails
-                ScaffoldMessenger.of(context)
-                  ..hideCurrentSnackBar()
-                  ..showSnackBar(snackBar(
-                      'Registration failed', '$e', ContentType.failure));
-              }
+          Container(height: 20),
+          AnimatedBuilder(
+            animation: _shakeController,
+            builder: (context, child) {
+              final offset = shake
+                  ? Tween<Offset>(
+                      begin: Offset.zero,
+                      end: Offset(0.03, 0),
+                    )
+                      .chain(CurveTween(curve: Curves.elasticIn))
+                      .animate(_shakeController)
+                      .value
+                  : Offset.zero;
+
+              return Transform.translate(
+                offset: offset * MediaQuery.of(context).size.width,
+                child: child,
+              );
             },
-            child: const Text('Register'),
+            child: ElevatedButton(
+              onPressed: () async {
+                setState(() {
+                  isLoading = true;
+                  shake = false;
+                });
+
+                try {
+                  // Call the login method from the Authentication class
+                  await context.read<Authentication>().register(
+                        email.text.trim(),
+                        password.text,
+                      );
+                  // Navigate to the home screen or show a success message
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(snackBar('Registration successful',
+                        'Welcome, \${email.text}!', ContentType.success));
+                } catch (e) {
+                  // Show an error message if login fails
+                  _shakeController.forward(from: 0);
+                  setState(() {
+                    shake = true;
+                  });
+
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(snackBar(
+                        'Registration failed', '\$e', ContentType.failure));
+                } finally {
+                  setState(() {
+                    isLoading = false;
+                  });
+                }
+              },
+              child: isLoading
+                  ? SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text('Register'),
+            ),
           )
         ],
       ),
