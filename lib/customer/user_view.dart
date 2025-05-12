@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_project/components/custom_appbar.dart';
-import 'package:flutter_project/customer/pages/accident_report.dart';
+import 'package:flutter_project/customer/pages/insurance_report_page.dart';
 import 'package:flutter_project/customer/pages/my_vehicles_page.dart';
 import 'package:flutter_project/customer/pages/new_vehicle_page.dart';
 import 'package:flutter_project/models/insurance.dart';
@@ -35,8 +35,8 @@ class _UserViewState extends State<UserView> {
         page = const MyVehiclesPage();
         break;
       case 2:
-        title = 'Report Accident';
-        page = const AccidentReportPage();
+        title = 'My Insurances';
+        page = const InsuranceReportPage();
         break;
       case 3:
         title = 'Settings';
@@ -74,7 +74,7 @@ class _UserViewState extends State<UserView> {
     return Scaffold(
       appBar: appBar(context, title),
       body: Align(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         child: SizedBox(
           width: maxWidth,
           child: SingleChildScrollView(
@@ -90,7 +90,7 @@ class _UserViewState extends State<UserView> {
           NavigationDestination(
               icon: Icon(Icons.directions_car), label: 'My Vehicles'),
           NavigationDestination(
-              icon: Icon(Icons.car_crash), label: 'Report Accident'),
+              icon: Icon(Icons.policy), label: 'My Insurances'),
           NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
         selectedIndex: selectedIndex,

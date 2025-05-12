@@ -14,21 +14,21 @@ class Vehicle {
   DateTime driverBirth;
   double carPrice;
   Insurance? insurance;
+  double? newCarValue;
 
   // Constructor
-  Vehicle(
-      {id,
-      uid,
-      required this.customerName,
-      required this.carModel,
-      required this.chassisNumber,
-      required this.manuYear,
-      required this.regNumber,
-      required this.passengers,
-      required this.driverBirth,
-      required this.carPrice,
-      insured,
-      renewal}) {
+  Vehicle({
+    id,
+    uid,
+    required this.customerName,
+    required this.carModel,
+    required this.chassisNumber,
+    required this.manuYear,
+    required this.regNumber,
+    required this.passengers,
+    required this.driverBirth,
+    required this.carPrice,
+  }) {
     this.id = id ?? Ulid().toCanonical();
   }
 
@@ -47,6 +47,10 @@ class Vehicle {
 
   // Calculate current car price
   double carPriceNow() {
+    if (newCarValue != null) {
+      return newCarValue!;
+    }
+
     int years = DateTime.now().year - this.manuYear;
 
     if (years > 8) {

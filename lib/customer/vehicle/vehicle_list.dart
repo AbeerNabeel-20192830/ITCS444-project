@@ -2,6 +2,7 @@ import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/components/pushed_page_scaffold.dart';
+import 'package:flutter_project/customer/pages/accident_report_page.dart';
 import 'package:flutter_project/customer/pages/insured_page.dart';
 import 'package:flutter_project/customer/pages/new_insurance_page.dart';
 import 'package:flutter_project/customer/pages/renewal_page.dart';
@@ -21,98 +22,142 @@ class VehicleListView extends StatefulWidget {
 }
 
 class _VehicleListViewState extends State<VehicleListView> {
+  String? searchKeyword;
+
+  List<Vehicle> filterVehicleList(List<Vehicle> vehicleList) {
+    return vehicleList.where((vehicle) {
+      searchKeyword = searchKeyword?.toLowerCase();
+
+      final match = searchKeyword == null ||
+          vehicle.chassisNumber.toLowerCase().contains(searchKeyword!) ==
+              true ||
+          vehicle.regNumber.toLowerCase().contains(searchKeyword!) == true ||
+          vehicle.carModel.toLowerCase().contains(searchKeyword!) == true ||
+          vehicle.customerName.toLowerCase().contains(searchKeyword!) == true ||
+          vehicle.insurance?.status.label
+                  .toLowerCase()
+                  .contains(searchKeyword!) ==
+              true ||
+          vehicle.manuYear.toString().contains(searchKeyword!);
+      return match;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Insurance> insuranceList =
-        context.watch<InsuranceProvider>().insuranceList;
-    List<Vehicle> vehicleList = context.watch<VehicleProvider>().vehicleList;
+    context.watch<InsuranceProvider>().insuranceList;
 
-    for (var vehicle in vehicleList) {
-      int index =
-          insuranceList.indexWhere((ins) => ins.vehicleId == vehicle.id);
-      if (index != -1) {
-        vehicle.insurance =
-            context.watch<InsuranceProvider>().insuranceList[index];
-      }
-    }
-
-    if (context.read<VehicleProvider>().isLoading) {
+    if (context.read<VehicleProvider>().isLoading ||
+        context.read<InsuranceProvider>().isLoading) {
       return Center(
         child: CircularProgressIndicator(),
       );
     }
 
-    // Show message if empty
-    if (vehicleList.isEmpty) {
-      return Center(
-        child: Text(
-          'No vehicles found',
-          style: Theme.of(context).textTheme.titleSmall,
-          textAlign: TextAlign.center,
+        final filtered =
+        filterVehicleList(context.watch<VehicleProvider>().vehicleList);
+
+    return Column(
+      children: [
+        TextField(
+          decoration: const InputDecoration(
+              labelText: 'Search', prefixIcon: Icon(Icons.search)),
+          onChanged: (value) => setState(() => searchKeyword = value),
         ),
-      );
-    }
+        const SizedBox(height: 20),
+        filtered.isEmpty
+            ? const Center(child: Text("No matching records"))
+            : ListView.builder(
+                physics: ScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: filtered.length,
+                itemBuilder: (context, i) {
+                  Vehicle vehicle = filtered[i];
 
-    return ListView.builder(
-        physics: ScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: vehicleList.length,
-        itemBuilder: (context, i) {
-          Vehicle vehicle = vehicleList[i];
-
-          return Card(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 4, top: 4),
-              child: ListTile(
-                title: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 10,
-                  children: [
-                    Text(vehicle.chassisNumber),
-                    Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(4))),
-                      color: Theme.of(context).highlightColor,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 4, right: 4),
-                        child: Text(
-                          vehicle.regNumber,
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                  return Card(
+                    child: Padding(
+                      padding:
+                          const EdgeInsets.only(bottom: 8, left: 4, top: 4),
+                      child: ListTile(
+                        title: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 10,
+                          children: [
+                            Text(vehicle.chassisNumber),
+                            Card(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4))),
+                              color: Theme.of(context).highlightColor,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 4, right: 4),
+                                child: Text(
+                                  vehicle.regNumber,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            )
+                          ],
                         ),
-                      ),
-                    )
-                  ],
-                ),
-                trailing: Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [actionDropDown(vehicle)],
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('${vehicle.carModel} (${vehicle.manuYear})'),
-                    Text(
-                        'Driver: ${vehicle.customerName} (${vehicle.driverAge()} years)'),
-                    SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () => showInsuranceStatusPage(vehicle),
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: vehicle.insuranceStatus.color,
-                          foregroundColor: Colors.black),
-                      child: Text(
-                        vehicle.insuranceStatus.label,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        trailing: Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [actionDropDown(vehicle)],
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('${vehicle.carModel} (${vehicle.manuYear})'),
+                            Text(
+                                'Driver: ${vehicle.customerName} (${vehicle.driverAge()} years)'),
+                            SizedBox(height: 8),
+                            Row(
+                              spacing: 10,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () =>
+                                      showInsuranceStatusPage(vehicle),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          vehicle.insuranceStatus.color,
+                                      foregroundColor: Colors.black),
+                                  child: Text(
+                                    vehicle.insuranceStatus.label,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                                TextButton(
+                                    onPressed: () =>
+                                        showAccidentReportPage(vehicle),
+                                    child: Text(
+                                      'Report Accident',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ))
+                              ],
+                            ),
+                          ],
+                        ),
+                        titleAlignment: ListTileTitleAlignment.top,
+                        titleTextStyle: Theme.of(context).textTheme.titleSmall,
+                        subtitleTextStyle:
+                            Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
-                  ],
-                ),
-                titleAlignment: ListTileTitleAlignment.top,
-                titleTextStyle: Theme.of(context).textTheme.titleSmall,
-                subtitleTextStyle: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ),
-          );
-        });
+                  );
+                }),
+      ],
+    );
+  }
+
+  showAccidentReportPage(Vehicle vehicle) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => PushedPageScaffold(
+                page: AccidentReportPage(vehicle: vehicle),
+                title: 'Report Accident')));
   }
 
   void showInsuranceStatusPage(Vehicle vehicle) {

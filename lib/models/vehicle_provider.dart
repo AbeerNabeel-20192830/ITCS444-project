@@ -22,13 +22,12 @@ class VehicleProvider extends ChangeNotifier {
 
     // Get data from docs and convert map to List
     vehicleList = querySnapshot.docs.map((doc) {
-
-            String path = doc.reference.path;
+      String path = doc.reference.path;
       List<String> segments = path.split('/');
       this.uid = segments[1];
 
       return Vehicle(
-        uid: uid,
+          uid: uid,
           id: doc['id'],
           customerName: doc['customerName'],
           carModel: doc['carModel'],
@@ -55,15 +54,16 @@ class VehicleProvider extends ChangeNotifier {
     vehicleList = querySnapshot.docs.map((doc) {
       return Vehicle(
         uid: uid,
-          id: doc['id'],
-          customerName: doc['customerName'],
-          carModel: doc['carModel'],
-          chassisNumber: doc['chassisNumber'],
-          manuYear: doc['manuYear'],
-          regNumber: doc['regNumber'],
-          passengers: doc['passengers'],
-          driverBirth: doc['driverBirth'].toDate(),
-          carPrice: doc['carPrice']);
+        id: doc['id'],
+        customerName: doc['customerName'],
+        carModel: doc['carModel'],
+        chassisNumber: doc['chassisNumber'],
+        manuYear: doc['manuYear'],
+        regNumber: doc['regNumber'],
+        passengers: doc['passengers'],
+        driverBirth: doc['driverBirth'].toDate(),
+        carPrice: doc['carPrice'],
+      );
     }).toList();
 
     isLoading = false;
@@ -106,7 +106,7 @@ class VehicleProvider extends ChangeNotifier {
       'regNumber': vehicle.regNumber,
       'passengers': vehicle.passengers,
       'driverBirth': vehicle.driverBirth,
-      'carPrice': vehicle.carPrice
+      'carPrice': vehicle.carPrice,
     });
   }
 

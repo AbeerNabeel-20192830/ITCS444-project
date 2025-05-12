@@ -6,9 +6,10 @@ import 'package:flutter_project/authentication.dart';
 import 'package:flutter_project/firebase_options.dart';
 import 'package:flutter_project/admin/admin_view.dart';
 import 'package:flutter_project/customer/user_view.dart';
+import 'package:flutter_project/models/accident_provider.dart';
 import 'package:flutter_project/models/insurance_provider.dart';
 import 'package:flutter_project/models/vehicle_provider.dart';
-import 'package:flutter_project/views/non_logged_view.dart';
+import 'package:flutter_project/non_logged_view.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_project/theme/theme_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +37,10 @@ void main() async {
       ),
       ChangeNotifierProvider(
           create: (context) => VehicleProvider(
+              uid: FirebaseAuth.instance.currentUser!.uid,
+              isAdmin: context.read<Authentication>().isAdmin)),
+      ChangeNotifierProvider(
+          create: (context) => AccidentProvider(
               uid: FirebaseAuth.instance.currentUser!.uid,
               isAdmin: context.read<Authentication>().isAdmin)),
     ],
