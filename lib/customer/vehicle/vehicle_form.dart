@@ -1,13 +1,12 @@
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:age_calculator/age_calculator.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/vehicle.dart';
 import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/utils.dart';
-import 'package:image_picker_web/image_picker_web.dart';
 import 'package:provider/provider.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 enum FormType { create, update }
 
@@ -21,7 +20,8 @@ class VehicleForm extends StatefulWidget {
   State<VehicleForm> createState() => _VehicleFormState();
 }
 
-class _VehicleFormState extends State<VehicleForm> {
+class _VehicleFormState extends State<VehicleForm>
+    with TickerProviderStateMixin {
   final GlobalKey<FormState> vehicleForm = GlobalKey<FormState>();
 
   // form fields
@@ -35,8 +35,61 @@ class _VehicleFormState extends State<VehicleForm> {
   TextEditingController carPrice = TextEditingController();
   int? driverAge;
 
-  bool imageAvailable = false;
-  Uint8List? imageFile;
+  // animation controllers
+  late final Map<String, AnimationController> _controllers;
+  late final Map<String, Animation<double>> _animations;
+
+  @override
+  void initState() {
+    super.initState();
+    _controllers = {
+      'name': AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 400)),
+      'model': AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 400)),
+      'chassis': AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 400)),
+      'year': AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 400)),
+      'reg': AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 400)),
+      'passengers': AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 400)),
+      'birth': AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 400)),
+      'price': AnimationController(
+          vsync: this, duration: const Duration(milliseconds: 400)),
+    };
+
+    _animations = {
+      for (var key in _controllers.keys)
+        key: Tween<double>(begin: 0, end: 10).animate(
+          CurvedAnimation(parent: _controllers[key]!, curve: Curves.elasticIn),
+        )..addStatusListener((status) {
+            if (status == AnimationStatus.completed) {
+              _controllers[key]!.reset();
+            }
+          }),
+    };
+  }
+
+  @override
+  void dispose() {
+    for (var c in _controllers.values) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Widget buildAnimatedField(String key, Widget child) {
+    return AnimatedBuilder(
+      animation: _animations[key]!,
+      builder: (context, _) {
+        final offset = math.sin(_animations[key]!.value) * 6;
+        return Transform.translate(offset: Offset(offset, 0), child: child);
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,265 +115,230 @@ class _VehicleFormState extends State<VehicleForm> {
       child: Column(
         spacing: 16,
         children: [
-          Column(
-            spacing: 8,
-            children: [
-              Container(
-                height: 120,
-                width: 250,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(8))),
-                child: Center(
-                  child: imageAvailable
-                      ? Image.memory(imageFile!)
-                      : Text(
-                          'Image',
-                          style: TextStyle(
-                              color: Colors.blueGrey,
-                              fontWeight: FontWeight.bold),
-                        ),
-                ),
-              ),
-              Row(
-                  spacing: 6,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () async {
-                        final image = await ImagePickerWeb.getImageInfo();
-
-                        if (image != null) {
-                          setState(() {
-                            imageFile = image.data;
-                            imageAvailable = true;
-                          });
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onTertiary,
-                        backgroundColor: Theme.of(context).colorScheme.tertiary,
-                      ),
-                      child: Text('Upload Image'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          imageFile = null;
-                          imageAvailable = false;
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onSecondary,
-                        backgroundColor:
-                            Theme.of(context).colorScheme.secondary,
-                      ),
-                      child: Text('Remove'),
-                    ),
-                  ])
-            ],
-          ),
           // Customer Name
-          TextFormField(
-            controller: customerName,
-            decoration: const InputDecoration(
-                labelText: 'Customer Name', icon: Icon(Icons.person)),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Customer name is required';
-              }
-
-              if (!alphaRegex.hasMatch(value)) {
-                return 'Customer name cannot contain numbers or special characters';
-              }
-
-              return null;
-            },
+          buildAnimatedField(
+            'name',
+            TextFormField(
+              controller: customerName,
+              decoration: const InputDecoration(
+                  labelText: 'Customer Name', icon: Icon(Icons.person)),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  _controllers['name']!.forward();
+                  return 'Customer name is required';
+                }
+                if (!alphaRegex.hasMatch(value)) {
+                  _controllers['name']!.forward();
+                  return 'Customer name cannot contain numbers or special characters';
+                }
+                return null;
+              },
+            ),
           ),
 
           // Car Model
-          TextFormField(
-            controller: carModel,
-            decoration: const InputDecoration(
-                labelText: 'Car Model', icon: Icon(Icons.directions_car)),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Car model is required';
-              }
-
-              if (!alphanumericRegex.hasMatch(value)) {
-                return 'Car model must be alphanumeric';
-              }
-
-              return null;
-            },
+          buildAnimatedField(
+            'model',
+            TextFormField(
+              controller: carModel,
+              decoration: const InputDecoration(
+                  labelText: 'Car Model', icon: Icon(Icons.directions_car)),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  _controllers['model']!.forward();
+                  return 'Car model is required';
+                }
+                if (!alphanumericRegex.hasMatch(value)) {
+                  _controllers['model']!.forward();
+                  return 'Car model must be alphanumeric';
+                }
+                return null;
+              },
+            ),
           ),
 
           // Chassis Number
-          TextFormField(
-            controller: chassisNumber,
-            decoration: const InputDecoration(
-              labelText: 'Chassis Number',
-              icon: Icon(Icons.numbers),
+          buildAnimatedField(
+            'chassis',
+            TextFormField(
+              controller: chassisNumber,
+              decoration: const InputDecoration(
+                labelText: 'Chassis Number',
+                icon: Icon(Icons.numbers),
+              ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  _controllers['chassis']!.forward();
+                  return 'Customer name is required';
+                }
+                if (!alphanumericRegex.hasMatch(value)) {
+                  _controllers['chassis']!.forward();
+                  return 'Chassis number must be alphanumeric';
+                }
+                return null;
+              },
             ),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Customer name is required';
-              }
-
-              if (!alphanumericRegex.hasMatch(value)) {
-                return 'Chassis number must be alphanumeric';
-              }
-
-              return null;
-            },
           ),
 
           // Manufacturing Year
-          TextFormField(
-            controller: manuYear,
-            decoration: const InputDecoration(
-              labelText: 'Manufacturing Year',
-              icon: Icon(Icons.date_range),
+          buildAnimatedField(
+            'year',
+            TextFormField(
+              controller: manuYear,
+              decoration: const InputDecoration(
+                labelText: 'Manufacturing Year',
+                icon: Icon(Icons.date_range),
+              ),
+              readOnly: true,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  _controllers['year']!.forward();
+                  return 'Manufacturing year is required';
+                }
+                return null;
+              },
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text("Select Manufacturing Year"),
+                      content: SizedBox(
+                          width: 300,
+                          height: 300,
+                          child: YearPicker(
+                              firstDate: DateTime(1950),
+                              lastDate: DateTime.now(),
+                              selectedDate: DateTime.now(),
+                              onChanged: (date) {
+                                Navigator.pop(context);
+                                manuYear.text = date.year.toString();
+                              })),
+                    );
+                  },
+                );
+              },
             ),
-            readOnly: true,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Manufacturing year is required';
-              }
-              return null;
-            },
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text("Select Manufacturing Year"),
-                    content: SizedBox(
-                        width: 300,
-                        height: 300,
-                        child: YearPicker(
-                            firstDate: DateTime(1950),
-                            lastDate: DateTime.now(),
-                            selectedDate: DateTime.now(),
-                            onChanged: (date) {
-                              Navigator.pop(context);
-                              manuYear.text = date.year.toString();
-                            })),
-                  );
-                },
-              );
-            },
           ),
 
           // Registration Number
-          TextFormField(
-            controller: regNumber,
-            decoration: const InputDecoration(
-              labelText: 'Registration Number',
-              icon: Icon(Icons.pin),
+          buildAnimatedField(
+            'reg',
+            TextFormField(
+              controller: regNumber,
+              decoration: const InputDecoration(
+                labelText: 'Registration Number',
+                icon: Icon(Icons.pin),
+              ),
+              keyboardType: const TextInputType.numberWithOptions(),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  _controllers['reg']!.forward();
+                  return 'Registrastion number is required';
+                }
+                if (!alphanumericRegex.hasMatch(value)) {
+                  _controllers['reg']!.forward();
+                  return 'Registration number must be alphanumeric';
+                }
+                return null;
+              },
             ),
-            keyboardType: const TextInputType.numberWithOptions(),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Registrastion number is required';
-              }
-
-              if (!alphanumericRegex.hasMatch(value)) {
-                return 'Registration number must be alphanumeric';
-              }
-
-              return null;
-            },
           ),
 
           // Number of Passengers
-          TextFormField(
-            controller: passengers,
-            decoration: const InputDecoration(
-              labelText: 'Number of Passengers',
-              icon: Icon(Icons.airline_seat_recline_extra),
+          buildAnimatedField(
+            'passengers',
+            TextFormField(
+              controller: passengers,
+              decoration: const InputDecoration(
+                labelText: 'Number of Passengers',
+                icon: Icon(Icons.airline_seat_recline_extra),
+              ),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  _controllers['passengers']!.forward();
+                  return 'Number of passengers is required';
+                }
+                if (int.tryParse(value) == null) {
+                  _controllers['passengers']!.forward();
+                  return 'Number of passengers must be a number';
+                }
+                if (int.parse(value) <= 0) {
+                  _controllers['passengers']!.forward();
+                  return 'Number of passengers must be positive';
+                }
+                return null;
+              },
             ),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Number of passengers is required';
-              }
-
-              if (int.tryParse(value) == null) {
-                return 'Number of passengers must be a number';
-              }
-
-              if (int.parse(value) <= 0) {
-                return 'Number of passengers must be positive';
-              }
-
-              return null;
-            },
           ),
 
           // Driver's birthdate (for age)
-          TextFormField(
-            controller: driverBirth,
-            decoration: InputDecoration(
-                labelText: 'Driver\'s Birthdate',
-                icon: const Icon(Icons.cake),
-                suffix: Text('${driverAge ?? "0"} years')),
-            readOnly: true,
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Driver\'s birthdate is required';
-              }
-
-              if (driverAge! < 18) {
-                return 'Driver must be 18 or older';
-              }
-
-              return null;
-            },
-            onTap: () {
-              showDatePicker(
-                      context: context,
-                      firstDate: DateTime(DateTime.now().year - 100),
-                      lastDate: DateTime.now())
-                  .then((pickedDate) {
-                if (pickedDate != null) {
-                  String formattedDate = dateToString(pickedDate);
-                  driverBirth.text = formattedDate;
-
-                  setState(() {
-                    driverAge =
-                        AgeCalculator.age(DateTime.parse(driverBirth.text))
-                            .years;
-                  });
+          buildAnimatedField(
+            'birth',
+            TextFormField(
+              controller: driverBirth,
+              decoration: InputDecoration(
+                  labelText: 'Driver\'s Birthdate',
+                  icon: const Icon(Icons.cake),
+                  suffix: Text('${driverAge ?? "0"} years')),
+              readOnly: true,
+              validator: (value) {
+                if (value!.isEmpty) {
+                  _controllers['birth']!.forward();
+                  return 'Driver\'s birthdate is required';
                 }
-              });
-            },
+                if (driverAge! < 18) {
+                  _controllers['birth']!.forward();
+                  return 'Driver must be 18 or older';
+                }
+                return null;
+              },
+              onTap: () {
+                showDatePicker(
+                        context: context,
+                        firstDate: DateTime(DateTime.now().year - 100),
+                        lastDate: DateTime.now())
+                    .then((pickedDate) {
+                  if (pickedDate != null) {
+                    String formattedDate = dateToString(pickedDate);
+                    driverBirth.text = formattedDate;
+
+                    setState(() {
+                      driverAge =
+                          AgeCalculator.age(DateTime.parse(driverBirth.text))
+                              .years;
+                    });
+                  }
+                });
+              },
+            ),
           ),
 
           // Car price when new
-          TextFormField(
-            controller: carPrice,
-            decoration: const InputDecoration(
-                labelText: 'Car Price When New',
-                icon: Icon(Icons.attach_money),
-                suffixText: 'BHD'),
-            validator: (value) {
-              if (value!.isEmpty) {
-                return 'Car price is required';
-              }
-
-              if (double.tryParse(value) == null) {
-                return 'Car price must be a number';
-              }
-
-              if (double.parse(value) <= 0) {
-                return 'Car price must be positive';
-              }
-
-              return null;
-            },
+          buildAnimatedField(
+            'price',
+            TextFormField(
+              controller: carPrice,
+              decoration: const InputDecoration(
+                  labelText: 'Car Price When New',
+                  icon: Icon(Icons.attach_money),
+                  suffixText: 'BHD'),
+              validator: (value) {
+                if (value!.isEmpty) {
+                  _controllers['price']!.forward();
+                  return 'Car price is required';
+                }
+                if (double.tryParse(value) == null) {
+                  _controllers['price']!.forward();
+                  return 'Car price must be a number';
+                }
+                if (double.parse(value) <= 0) {
+                  _controllers['price']!.forward();
+                  return 'Car price must be positive';
+                }
+                return null;
+              },
+            ),
           ),
           const SizedBox(),
           Wrap(
@@ -330,23 +348,13 @@ class _VehicleFormState extends State<VehicleForm> {
             runAlignment: WrapAlignment.center,
             children: [
               ElevatedButton(
-                onPressed: () => submitVehicle(vehicle),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                ),
-                child: Text(widget.formType == FormType.create
-                    ? 'Add Vehicle'
-                    : 'Update Vehicle'),
-              ),
+                  onPressed: () => submitVehicle(vehicle),
+                  child: Text(widget.formType == FormType.create
+                      ? 'Add Vehicle'
+                      : 'Update Vehicle')),
               ElevatedButton(
-                onPressed: () => vehicleForm.currentState!.reset(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.secondary,
-                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
-                ),
-                child: const Text('Reset'),
-              ),
+                  onPressed: () => vehicleForm.currentState!.reset(),
+                  child: const Text('Reset'))
             ],
           ),
         ],
@@ -368,14 +376,6 @@ class _VehicleFormState extends State<VehicleForm> {
       }
 
       vehicleForm.currentState!.reset();
-      customerName.clear();
-      carModel.clear();
-      chassisNumber.clear();
-      manuYear.clear();
-      regNumber.clear();
-      passengers.clear();
-      driverBirth.clear();
-      carPrice.clear();
       customerName.clear();
       carModel.clear();
       chassisNumber.clear();
