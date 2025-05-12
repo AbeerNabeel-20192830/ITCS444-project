@@ -1,11 +1,12 @@
-
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:age_calculator/age_calculator.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/vehicle.dart';
 import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/utils.dart';
+import 'package:image_picker_web/image_picker_web.dart';
 import 'package:provider/provider.dart';
 
 enum FormType { create, update }
@@ -34,6 +35,9 @@ class _VehicleFormState extends State<VehicleForm> {
   TextEditingController carPrice = TextEditingController();
   int? driverAge;
 
+  bool imageAvailable = false;
+  Uint8List? imageFile;
+
   @override
   Widget build(BuildContext context) {
     Vehicle? vehicle = widget.vehicle;
@@ -58,6 +62,66 @@ class _VehicleFormState extends State<VehicleForm> {
       child: Column(
         spacing: 16,
         children: [
+          Column(
+            spacing: 8,
+            children: [
+              Container(
+                height: 120,
+                width: 250,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(8))),
+                child: Center(
+                  child: imageAvailable
+                      ? Image.memory(imageFile!)
+                      : Text(
+                          'Image',
+                          style: TextStyle(
+                              color: Colors.blueGrey,
+                              fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ),
+              Row(
+                  spacing: 6,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final image = await ImagePickerWeb.getImageInfo();
+
+                        if (image != null) {
+                          setState(() {
+                            imageFile = image.data;
+                            imageAvailable = true;
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onTertiary,
+                        backgroundColor: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      child: Text('Upload Image'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          imageFile = null;
+                          imageAvailable = false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSecondary,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                      ),
+                      child: Text('Remove'),
+                    ),
+                  ])
+            ],
+          ),
           // Customer Name
           TextFormField(
             controller: customerName,
@@ -266,13 +330,23 @@ class _VehicleFormState extends State<VehicleForm> {
             runAlignment: WrapAlignment.center,
             children: [
               ElevatedButton(
-                  onPressed: () => submitVehicle(vehicle),
-                  child: Text(widget.formType == FormType.create
-                      ? 'Add Vehicle'
-                      : 'Update Vehicle')),
+                onPressed: () => submitVehicle(vehicle),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+                child: Text(widget.formType == FormType.create
+                    ? 'Add Vehicle'
+                    : 'Update Vehicle'),
+              ),
               ElevatedButton(
-                  onPressed: () => vehicleForm.currentState!.reset(),
-                  child: const Text('Reset'))
+                onPressed: () => vehicleForm.currentState!.reset(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                ),
+                child: const Text('Reset'),
+              ),
             ],
           ),
         ],
