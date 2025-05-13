@@ -1,7 +1,10 @@
+import 'dart:developer';
 import 'dart:math' as math;
+import 'package:cloudinary/cloudinary.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:age_calculator/age_calculator.dart';
+import 'package:flutter_project/api_keys.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/vehicle.dart';
 import 'package:flutter_project/models/vehicle_provider.dart';
@@ -40,6 +43,7 @@ class _VehicleFormState extends State<VehicleForm>
   // image upload
   bool imageAvailable = false;
   Uint8List? imageFile;
+  String? imageUrl;
 
   // animation controllers
   late final Map<String, AnimationController> _controllers;
@@ -101,6 +105,8 @@ class _VehicleFormState extends State<VehicleForm>
   Widget build(BuildContext context) {
     Vehicle? vehicle = widget.vehicle;
 
+    inspect(vehicle);
+
     if (widget.vehicle != null && widget.formType == FormType.update) {
       vehicle = widget.vehicle!;
       customerName.text = vehicle.customerName;
@@ -115,6 +121,9 @@ class _VehicleFormState extends State<VehicleForm>
       carPrice.text = vehicle.carPrice.toString();
 
       driverAge = AgeCalculator.age(DateTime.parse(driverBirth.text)).years;
+
+      imageUrl = imageUrl == 'removed' ? null : vehicle.imageUrl;
+      print(imageUrl);
     }
 
     return Form(
@@ -135,12 +144,24 @@ class _VehicleFormState extends State<VehicleForm>
                 child: Center(
                   child: imageAvailable
                       ? Image.memory(imageFile!)
-                      : Text(
-                          'Image',
-                          style: TextStyle(
-                              color: Colors.blueGrey,
-                              fontWeight: FontWeight.bold),
-                        ),
+                      : imageUrl != null
+                          ? Image.network(
+                              '${imageUrl!}?v=1',
+                              errorBuilder: (context, error, stackTrace) {
+                                return Text(
+                                  'Image',
+                                  style: TextStyle(
+                                      color: Colors.blueGrey,
+                                      fontWeight: FontWeight.bold),
+                                );
+                              },
+                            )
+                          : Text(
+                              'Image',
+                              style: TextStyle(
+                                  color: Colors.blueGrey,
+                                  fontWeight: FontWeight.bold),
+                            ),
                 ),
               ),
               Row(
@@ -170,6 +191,7 @@ class _VehicleFormState extends State<VehicleForm>
                         setState(() {
                           imageFile = null;
                           imageAvailable = false;
+                          imageUrl = 'removed';
                         });
                       },
                       style: ElevatedButton.styleFrom(
@@ -460,7 +482,7 @@ class _VehicleFormState extends State<VehicleForm>
     }
   }
 
-  void createVehicle() {
+  void createVehicle() async {
     Vehicle vehicle = Vehicle(
         customerName: customerName.text,
         carModel: carModel.text,
@@ -471,7 +493,28 @@ class _VehicleFormState extends State<VehicleForm>
         driverBirth: DateTime.parse(driverBirth.text),
         carPrice: double.parse(carPrice.text));
 
+    // add vehcile to firebase
     context.read<VehicleProvider>().addVehicle(vehicle);
+
+    // upload image to cloudinary
+    if (imageFile != null) {
+      final response = await cloudinary.upload(
+        publicId: vehicle.id,
+        fileBytes: imageFile,
+        resourceType: CloudinaryResourceType.image,
+        folder: 'vehicle-images',
+        fileName: vehicle.id,
+        progressCallback: (count, total) {
+          print('Uploading image from file with progress: $count/$total');
+        },
+      );
+
+      if (response.isSuccessful) {
+        print('Get your image from with ${response.secureUrl}');
+        vehicle.imageUrl = response.secureUrl;
+        context.read<VehicleProvider>().updateVehicle(vehicle);
+      }
+    }
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
@@ -481,7 +524,7 @@ class _VehicleFormState extends State<VehicleForm>
           ContentType.success));
   }
 
-  void updateVehicle(Vehicle vehicle) {
+  void updateVehicle(Vehicle vehicle) async {
     vehicle.customerName = customerName.text;
     vehicle.carModel = carModel.text;
     vehicle.chassisNumber = chassisNumber.text;
@@ -492,6 +535,34 @@ class _VehicleFormState extends State<VehicleForm>
     vehicle.carPrice = double.parse(carPrice.text);
 
     context.read<VehicleProvider>().updateVehicle(vehicle);
+
+    if (imageFile != null) {
+      await cloudinary.destroy(vehicle.id, url: imageUrl);
+
+      final response = await cloudinary.upload(
+        publicId: vehicle.id,
+        fileBytes: imageFile,
+        resourceType: CloudinaryResourceType.image,
+        folder: 'vehicle-images',
+        fileName: vehicle.id,
+        progressCallback: (count, total) {
+          print('Uploading image from file with progress: $count/$total');
+        },
+      );
+
+      if (response.isSuccessful) {
+        print('Get your image from with ${response.secureUrl}');
+        vehicle.imageUrl = response.secureUrl;
+        context.read<VehicleProvider>().updateVehicle(vehicle);
+      }
+    } else if (imageUrl == null) {
+      print('deleting image from cloudinary');
+      final response =
+          await cloudinary.destroy(vehicle.id, url: imageUrl, invalidate: true);
+
+      vehicle.imageUrl = null;
+      context.read<VehicleProvider>().updateVehicle(vehicle);
+    }
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()

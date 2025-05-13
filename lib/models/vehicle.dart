@@ -4,6 +4,7 @@ import 'package:ulid/ulid.dart';
 
 class Vehicle {
   String? uid;
+  String? imageUrl;
   late String id;
   String customerName;
   String carModel;
@@ -20,6 +21,7 @@ class Vehicle {
   Vehicle({
     id,
     uid,
+    imageUrl,
     required this.customerName,
     required this.carModel,
     required this.chassisNumber,

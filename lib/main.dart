@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/admin/offers/offer_provider.dart';
 import 'package:flutter_project/authentication.dart';
-import 'package:flutter_project/firebase_options.dart';
+import 'package:flutter_project/api_keys.dart';
 import 'package:flutter_project/admin/admin_view.dart';
 import 'package:flutter_project/customer/user_view.dart';
 import 'package:flutter_project/models/accident_provider.dart';

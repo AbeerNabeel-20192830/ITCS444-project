@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
@@ -59,7 +61,9 @@ class _VehicleListViewState extends State<VehicleListView> {
     }
 
     filteredVehicles =
-        filterVehicleList(context.read<VehicleProvider>().vehicleList);
+        filterVehicleList(context.watch<VehicleProvider>().vehicleList);
+
+    inspect(context.watch<VehicleProvider>().vehicleList);
 
     return Column(
       children: [
@@ -70,8 +74,6 @@ class _VehicleListViewState extends State<VehicleListView> {
             searchKeyword = value;
             filteredVehicles =
                 filterVehicleList(context.read<VehicleProvider>().vehicleList);
-            print('Filtered Vehicles: ${filteredVehicles.length}');
-            print('Search Keyword: $searchKeyword');
             setState(() {});
           },
         ),
@@ -86,9 +88,7 @@ class _VehicleListViewState extends State<VehicleListView> {
                 initialItemCount: filteredVehicles.length,
                 itemBuilder: (context, i, animation) {
                   if (i > filteredVehicles.length - 1) return SizedBox();
-                  print('Filtered Vehicles: ${filteredVehicles.length}');
-                  print('Search Keyword: $searchKeyword');
-                  print('I: $i');
+
                   Vehicle vehicle = filteredVehicles[i];
                   return _buildAnimatedListItem(vehicle, i, animation);
                 },
@@ -274,7 +274,7 @@ class _VehicleListViewState extends State<VehicleListView> {
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: const Text('Delete Task'),
+                  title: const Text('Delete Vehicle'),
                   content: Text(
                     'Are you sure you want to delete "${vehicle.carModel} (${vehicle.chassisNumber})"?',
                   ),
@@ -372,7 +372,7 @@ class AnimatedDialog extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Update Task',
+                            'Update Vehicle',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleSmall, // Example

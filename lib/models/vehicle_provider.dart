@@ -27,16 +27,18 @@ class VehicleProvider extends ChangeNotifier {
       this.uid = segments[1];
 
       return Vehicle(
-          uid: uid,
-          id: doc['id'],
-          customerName: doc['customerName'],
-          carModel: doc['carModel'],
-          chassisNumber: doc['chassisNumber'],
-          manuYear: doc['manuYear'],
-          regNumber: doc['regNumber'],
-          passengers: doc['passengers'],
-          driverBirth: doc['driverBirth'].toDate(),
-          carPrice: doc['carPrice']);
+        uid: uid,
+        id: doc['id'],
+        customerName: doc['customerName'],
+        carModel: doc['carModel'],
+        chassisNumber: doc['chassisNumber'],
+        manuYear: doc['manuYear'],
+        regNumber: doc['regNumber'],
+        passengers: doc['passengers'],
+        driverBirth: doc['driverBirth'].toDate(),
+        carPrice: doc['carPrice'],
+        imageUrl: null,
+      );
     }).toList();
 
     isLoading = false;
@@ -63,6 +65,7 @@ class VehicleProvider extends ChangeNotifier {
         passengers: doc['passengers'],
         driverBirth: doc['driverBirth'].toDate(),
         carPrice: doc['carPrice'],
+        imageUrl: doc['imageUrl'],
       );
     }).toList();
 
@@ -107,6 +110,7 @@ class VehicleProvider extends ChangeNotifier {
       'passengers': vehicle.passengers,
       'driverBirth': vehicle.driverBirth,
       'carPrice': vehicle.carPrice,
+      'imageUrl': vehicle.imageUrl,
     });
   }
 

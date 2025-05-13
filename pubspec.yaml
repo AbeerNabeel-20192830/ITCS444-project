@@ -46,6 +46,7 @@ dependencies:
   intl: ^0.20.2
   image_picker_web: ^4.0.0
   firebase_storage: ^12.4.5
+  cloudinary: ^1.2.0
 
 dev_dependencies:
   flutter_test:
