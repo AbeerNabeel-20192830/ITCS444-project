@@ -20,20 +20,57 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: 20,
+      spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Card(
           child: ListTile(
-            title: Text("App Theme"),
-            trailing: IconButton(
-                onPressed: () {
-                  context.read<ThemeProvider>().toggleTheme();
-                },
-                icon: context.watch<ThemeProvider>().themeData == lightMode
-                    ? Icon(Icons.light_mode)
-                    : Icon(Icons.dark_mode)),
+            title: Text(
+              "Email",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            trailing: Text(
+              FirebaseAuth.instance.currentUser!.email!,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
+        ),
+        Card(
+          child: ListTile(
+            title: Text(
+              "User ID",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            trailing: Text(
+              FirebaseAuth.instance.currentUser!.uid,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: Text(
+              "App Theme",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            trailing: IconButton(
+              onPressed: () {
+                context.read<ThemeProvider>().toggleTheme();
+              },
+              icon: context.watch<ThemeProvider>().themeData == lightMode
+                  ? Icon(Icons.light_mode)
+                  : Icon(Icons.dark_mode),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 20,
         ),
         ElevatedButton(
           onPressed: () async {

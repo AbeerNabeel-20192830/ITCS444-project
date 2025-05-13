@@ -191,31 +191,33 @@ class _AccidentReportPageState extends State<AccidentReportPage> {
         SizedBox(
           height: 10,
         ),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: filtered.length,
-          itemBuilder: (context, i) {
-            Accident accident = filtered[i];
+        filtered.isEmpty
+            ? Text('No accidents reported')
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: filtered.length,
+                itemBuilder: (context, i) {
+                  Accident accident = filtered[i];
 
-            return Card(
-              child: ListTile(
-                title: Text(
-                  'Accident Date: ${dateToString(accident.accidentDate)}',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Damaged Parts: ${accident.damagedParts}'),
-                    Text('Repair Cost: ${accident.repairCost} BHD'),
-                    Text(
-                        'Consumption Rate: ${accident.consumptionRate * 100}%'),
-                  ],
-                ),
+                  return Card(
+                    child: ListTile(
+                      title: Text(
+                        'Accident Date: ${dateToString(accident.accidentDate)}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Damaged Parts: ${accident.damagedParts}'),
+                          Text('Repair Cost: ${accident.repairCost} BHD'),
+                          Text(
+                              'Consumption Rate: ${accident.consumptionRate * 100}%'),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ],
     );
   }
