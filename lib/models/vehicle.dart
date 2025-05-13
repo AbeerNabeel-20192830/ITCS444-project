@@ -20,8 +20,8 @@ class Vehicle {
   // Constructor
   Vehicle({
     id,
-    uid,
-    imageUrl,
+    this.uid,
+    this.imageUrl,
     required this.customerName,
     required this.carModel,
     required this.chassisNumber,

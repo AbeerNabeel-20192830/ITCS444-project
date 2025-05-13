@@ -45,7 +45,7 @@ class Insurance {
   double? finalPrice;
 
   Insurance({
-    uid,
+    this.uid,
     id,
     required this.vehicleId,
     this.selectedOffer,

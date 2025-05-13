@@ -7,7 +7,7 @@ class Accident {
   double consumptionRate;
 
   Accident({
-    uid,
+    this.uid,
     required this.vehicleId,
     required this.accidentDate,
     required this.damagedParts,

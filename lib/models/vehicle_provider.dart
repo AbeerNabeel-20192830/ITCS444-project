@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/models/vehicle.dart';
@@ -54,6 +56,7 @@ class VehicleProvider extends ChangeNotifier {
 
     // Get data from docs and convert map to List
     vehicleList = querySnapshot.docs.map((doc) {
+      // print(doc['imageUrl']);
       return Vehicle(
         uid: uid,
         id: doc['id'],
@@ -68,6 +71,8 @@ class VehicleProvider extends ChangeNotifier {
         imageUrl: doc['imageUrl'],
       );
     }).toList();
+
+    inspect(vehicleList);
 
     isLoading = false;
     notifyListeners();

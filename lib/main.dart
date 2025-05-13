@@ -37,13 +37,15 @@ void main() async {
       ),
       ChangeNotifierProvider(
         create: (context) => VehicleProvider(
-            uid: FirebaseAuth.instance.currentUser!.uid,
-            isAdmin: context.read<Authentication>().isAdmin),
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          isAdmin: context.read<Authentication>().isAdmin,
+        ),
       ),
       ChangeNotifierProvider(
         create: (context) => AccidentProvider(
-            uid: FirebaseAuth.instance.currentUser!.uid,
-            isAdmin: context.read<Authentication>().isAdmin),
+          uid: FirebaseAuth.instance.currentUser!.uid,
+          isAdmin: context.read<Authentication>().isAdmin,
+        ),
       ),
     ],
     child: const MyApp(),

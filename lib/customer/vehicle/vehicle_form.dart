@@ -557,8 +557,8 @@ class _VehicleFormState extends State<VehicleForm>
       }
     } else if (imageUrl == null) {
       print('deleting image from cloudinary');
-      final response =
-          await cloudinary.destroy(vehicle.id, url: imageUrl, invalidate: true);
+
+      await cloudinary.destroy(vehicle.id, url: imageUrl, invalidate: true);
 
       vehicle.imageUrl = null;
       context.read<VehicleProvider>().updateVehicle(vehicle);
