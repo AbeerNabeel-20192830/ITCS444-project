@@ -112,11 +112,12 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
               ),
               ListTile(
                 leading: Text('Car Price When New'),
-                trailing: Text('${vehicle.carPrice}'),
+                trailing: Text('${vehicle.carPrice.toStringAsFixed(2)} BHD'),
               ),
               ListTile(
                 leading: Text('Car Price Now'),
-                trailing: Text('${vehicle.carPriceNow()}'),
+                trailing:
+                    Text('${vehicle.carPriceNow().toStringAsFixed(2)} BHD'),
               ),
             ],
           ),
@@ -161,7 +162,7 @@ class _InsuranceRequestFormState extends State<InsuranceRequestForm> {
               'Estimated Price: ',
             ),
             trailing: Text(
-              '${Insurance.estimatePrice(vehicle, accident)} BHD',
+              '${Insurance.estimatePrice(vehicle, accident).toStringAsFixed(2)} BHD',
             ),
             leadingAndTrailingTextStyle: Theme.of(context)
                 .textTheme

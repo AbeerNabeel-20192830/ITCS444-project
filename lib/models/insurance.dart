@@ -61,7 +61,7 @@ class Insurance {
     this.id = id ?? Ulid().toCanonical();
   }
 
-  price() {
+  double price() {
     if (selectedOffer != null) {
       return selectedOffer!.price;
     }
@@ -73,7 +73,7 @@ class Insurance {
     return (vehicle!.carPriceNow() / 100) + ageAddon + accidentAddon;
   }
 
-  approve() {
+  void approve() {
     status = Status.notPayed;
     finalPrice = price();
   }

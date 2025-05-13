@@ -44,11 +44,11 @@ vehicleInformationCard(context, Vehicle vehicle) {
         ),
         ListTile(
           leading: Text('Car Price When New'),
-          trailing: Text('${vehicle.carPrice}'),
+          trailing: Text('${vehicle.carPrice.toStringAsFixed(2)} BHD'),
         ),
         ListTile(
           leading: Text('Car Price Now'),
-          trailing: Text('${vehicle.carPriceNow()}'),
+          trailing: Text('${vehicle.carPriceNow().toStringAsFixed(2)} BHD'),
         ),
       ],
     ),

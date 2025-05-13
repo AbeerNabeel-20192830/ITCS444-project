@@ -142,7 +142,7 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
                   ScaffoldMessenger.of(context)
                     ..hideCurrentSnackBar()
                     ..showSnackBar(snackBar(
-                        'Registration failed', '\$e', ContentType.failure));
+                        'Registration failed', '$e', ContentType.failure));
                 } finally {
                   setState(() {
                     isLoading = false;

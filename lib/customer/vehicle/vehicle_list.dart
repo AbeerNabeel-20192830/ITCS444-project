@@ -31,6 +31,7 @@ class _VehicleListViewState extends State<VehicleListView> {
   List<Vehicle> filterVehicleList(List<Vehicle> vehicleList) {
     return vehicleList.where((vehicle) {
       searchKeyword = searchKeyword?.toLowerCase();
+      if (searchKeyword == '') searchKeyword = null;
 
       final match = searchKeyword == null ||
           vehicle.chassisNumber.toLowerCase().contains(searchKeyword!) ||
@@ -57,15 +58,22 @@ class _VehicleListViewState extends State<VehicleListView> {
       );
     }
 
-    final vehicleList = context.watch<VehicleProvider>().vehicleList;
-    filteredVehicles = filterVehicleList(vehicleList);
+    filteredVehicles =
+        filterVehicleList(context.read<VehicleProvider>().vehicleList);
 
     return Column(
       children: [
         TextField(
           decoration: const InputDecoration(
               labelText: 'Search', prefixIcon: Icon(Icons.search)),
-          onChanged: (value) => setState(() => searchKeyword = value),
+          onChanged: (value) {
+            searchKeyword = value;
+            filteredVehicles =
+                filterVehicleList(context.read<VehicleProvider>().vehicleList);
+            print('Filtered Vehicles: ${filteredVehicles.length}');
+            print('Search Keyword: $searchKeyword');
+            setState(() {});
+          },
         ),
         const SizedBox(height: 20),
         filteredVehicles.isEmpty
@@ -77,6 +85,10 @@ class _VehicleListViewState extends State<VehicleListView> {
                 controller: scrollCtrl,
                 initialItemCount: filteredVehicles.length,
                 itemBuilder: (context, i, animation) {
+                  if (i > filteredVehicles.length - 1) return SizedBox();
+                  print('Filtered Vehicles: ${filteredVehicles.length}');
+                  print('Search Keyword: $searchKeyword');
+                  print('I: $i');
                   Vehicle vehicle = filteredVehicles[i];
                   return _buildAnimatedListItem(vehicle, i, animation);
                 },
@@ -348,32 +360,35 @@ class AnimatedDialog extends StatelessWidget {
         child: Center(
           child: SizedBox(
             width: 600, // Restore the dialog's original width
-            child: Dialog(
-              child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Update Task',
-                          style:
-                              TextStyle(fontWeight: FontWeight.bold), // Example
-                        ),
-                        IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: const Icon(Icons.close),
-                        ),
-                      ],
-                    ),
-                    VehicleForm(
-                      formType: FormType.update,
-                      vehicle: vehicle,
-                    ),
-                  ],
+            child: SingleChildScrollView(
+              child: Dialog(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Update Task',
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall, // Example
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.close),
+                          ),
+                        ],
+                      ),
+                      VehicleForm(
+                        formType: FormType.update,
+                        vehicle: vehicle,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -37,7 +37,7 @@ Card quotationCard(context, Insurance insurance) {
         ),
         ListTile(
           leading: Text('Total Amount'),
-          trailing: Text("${insurance.price()} BHD"),
+          trailing: Text("${insurance.price().toStringAsFixed(2)} BHD"),
         ),
       ],
     ),

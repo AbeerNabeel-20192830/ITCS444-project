@@ -1,10 +1,12 @@
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:age_calculator/age_calculator.dart';
 import 'package:flutter_project/components/custom_snackbar.dart';
 import 'package:flutter_project/models/vehicle.dart';
 import 'package:flutter_project/models/vehicle_provider.dart';
 import 'package:flutter_project/utils.dart';
+import 'package:image_picker_web/image_picker_web.dart';
 import 'package:provider/provider.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
@@ -34,6 +36,10 @@ class _VehicleFormState extends State<VehicleForm>
   TextEditingController driverBirth = TextEditingController();
   TextEditingController carPrice = TextEditingController();
   int? driverAge;
+
+  // image upload
+  bool imageAvailable = false;
+  Uint8List? imageFile;
 
   // animation controllers
   late final Map<String, AnimationController> _controllers;
@@ -103,10 +109,12 @@ class _VehicleFormState extends State<VehicleForm>
       manuYear.text = vehicle.manuYear.toString();
       regNumber.text = vehicle.regNumber;
       passengers.text = vehicle.passengers.toString();
-      driverBirth.text = dateToString(vehicle.driverBirth);
+      driverBirth.text = driverBirth.text.isNotEmpty
+          ? driverBirth.text
+          : dateToString(vehicle.driverBirth);
       carPrice.text = vehicle.carPrice.toString();
 
-      driverAge = vehicle.driverAge();
+      driverAge = AgeCalculator.age(DateTime.parse(driverBirth.text)).years;
     }
 
     return Form(
@@ -115,6 +123,66 @@ class _VehicleFormState extends State<VehicleForm>
       child: Column(
         spacing: 16,
         children: [
+          Column(
+            spacing: 8,
+            children: [
+              Container(
+                height: 120,
+                width: 250,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.all(Radius.circular(8))),
+                child: Center(
+                  child: imageAvailable
+                      ? Image.memory(imageFile!)
+                      : Text(
+                          'Image',
+                          style: TextStyle(
+                              color: Colors.blueGrey,
+                              fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ),
+              Row(
+                  spacing: 6,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        final image = await ImagePickerWeb.getImageInfo();
+
+                        if (image != null) {
+                          setState(() {
+                            imageFile = image.data;
+                            imageAvailable = true;
+                          });
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onTertiary,
+                        backgroundColor: Theme.of(context).colorScheme.tertiary,
+                      ),
+                      child: Text('Upload Image'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          imageFile = null;
+                          imageAvailable = false;
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor:
+                            Theme.of(context).colorScheme.onSecondary,
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                      ),
+                      child: Text('Remove'),
+                    ),
+                  ])
+            ],
+          ),
           // Customer Name
           buildAnimatedField(
             'name',
@@ -296,18 +364,21 @@ class _VehicleFormState extends State<VehicleForm>
               onTap: () {
                 showDatePicker(
                         context: context,
+                        initialDate: vehicle?.driverBirth ?? DateTime.now(),
                         firstDate: DateTime(DateTime.now().year - 100),
                         lastDate: DateTime.now())
                     .then((pickedDate) {
                   if (pickedDate != null) {
+                    print(pickedDate);
+
                     String formattedDate = dateToString(pickedDate);
                     driverBirth.text = formattedDate;
+                    print(driverBirth.text);
 
-                    setState(() {
-                      driverAge =
-                          AgeCalculator.age(DateTime.parse(driverBirth.text))
-                              .years;
-                    });
+                    driverAge =
+                        AgeCalculator.age(DateTime.parse(driverBirth.text))
+                            .years;
+                    setState(() {});
                   }
                 });
               },
@@ -348,13 +419,23 @@ class _VehicleFormState extends State<VehicleForm>
             runAlignment: WrapAlignment.center,
             children: [
               ElevatedButton(
-                  onPressed: () => submitVehicle(vehicle),
-                  child: Text(widget.formType == FormType.create
-                      ? 'Add Vehicle'
-                      : 'Update Vehicle')),
+                onPressed: () => submitVehicle(vehicle),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                ),
+                child: Text(widget.formType == FormType.create
+                    ? 'Add Vehicle'
+                    : 'Update Vehicle'),
+              ),
               ElevatedButton(
-                  onPressed: () => vehicleForm.currentState!.reset(),
-                  child: const Text('Reset'))
+                onPressed: () => clearFields(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                ),
+                child: const Text('Reset'),
+              ),
             ],
           ),
         ],
@@ -375,15 +456,7 @@ class _VehicleFormState extends State<VehicleForm>
           break;
       }
 
-      vehicleForm.currentState!.reset();
-      customerName.clear();
-      carModel.clear();
-      chassisNumber.clear();
-      manuYear.clear();
-      regNumber.clear();
-      passengers.clear();
-      driverBirth.clear();
-      carPrice.clear();
+      clearFields();
     }
   }
 
@@ -428,5 +501,20 @@ class _VehicleFormState extends State<VehicleForm>
           ContentType.success));
 
     Navigator.pop(context);
+  }
+
+  void clearFields() {
+    vehicleForm.currentState!.reset();
+    passengers.clear();
+    driverBirth.clear();
+    carPrice.clear();
+    customerName.clear();
+    carModel.clear();
+    chassisNumber.clear();
+    manuYear.clear();
+    regNumber.clear();
+    passengers.clear();
+    driverBirth.clear();
+    carPrice.clear();
   }
 }
